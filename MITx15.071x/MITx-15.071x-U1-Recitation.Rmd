@@ -1,0 +1,227 @@
+---
+title: "MITx-15.071x-U1-Recitation"
+author: "Rahul Yadav"
+date: "April 11, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = "C:/Users/pySag/Desktop/MITx15.071x" )
+```
+
+
+> ## About Recitation 1
+
+-- --
+
+#### In the following recitation, we get more familiar with R and review some basic functions to read, visualize & analyze data sets.
+
+> ### Objective
+
+-- --
+
+* #### We will be looking at nutritional data over 7K foods distributed by the US Dept. of Agriculture.
+
+* #### Analyzing USDA Food Database in the following recitation.
+
+
+> ### Analyzing the USDA Food Database.
+
+--- ---
+
+> **Loading the data set**
+
+-- --
+
+* #### We'll start by reading in our dataset USDA.csv.
+* #### It contains all foods in the USDA database in 100-gram amounts.
+
+```{r}
+getwd()
+
+# read in the data set.
+
+USDA <- read.csv("C:/Users/pySag/Desktop/MITx15.071x/Datasets/USDA.csv")
+```
+
+> **Learning about data**
+
+#### We can use the structure function or **str()** & **summary** to get more info. on our USDA data set.
+
+```{r}
+str(USDA)
+
+# summary of the data
+
+summary(USDA)
+```
+
+-- --
+
+
+#### Following is the information we obtained from the USDA data set:
+  
+* ####   **Max. amount of Cholesterol is 3100 mgs.**
+* ####   **Whereas, the mean is only 41.55 mgs.**
+
+#### We also have the information about the number of **non-available** entries.
+
+* ####  For instance, about **1910 foods** have _missing entries_ for their **sugar levels.**
+
+* #### _Maximum amount of sodium_ is **38,758** which is high in repect to a daily amount of 25K.
+  
+#### **Let's Investigate!**
+
+
+> #### INVESTIGATION
+
+-- --
+
+#### To check the values of sodium levels in the foods within the data set, we can use the following code:
+  
+  
+```{r}
+summary(USDA $ Sodium )
+```
+
+**Note:** The measurement is in **milligrams or mgs**
+
+> **Which food has the maximum amount of sodium in it?**
+
+##### To the find which food has the maximum amount od sodium in it, we are going to use the following function, **which.max()** followed by the subset vector _sodium_ in our USDA data set.
+
+```{r tidy = TRUE}
+which.max(USDA $ Sodium)
+
+# This will throw back the index of the food variable we are intersested to find.
+
+# A neat trick to find the name of the variable if the data set is huge, is names() method. Simply pass our "data frame" as argument in it.
+
+names(USDA)
+
+# now we can find the variable "Description" that will provide us the name of the food that we are interested in.
+
+USDA $ Description[ 265 ]
+```
+
+> #### **Observation**
+
+
+#### It turns out that **"table salt"** contains the *maximum amount* of **sodium** content, which is a no brainer hence, it might be more interesting to find out **which foods for instance contain more than (say) 10K mgs of sodium?**
+
+
+#### To do the following:
+-- --
+
+#### 1. Create a new data frame called **"HighSodium"**.
+
+#### 2. __Subsetting__ With only the *foods that have sodium content* **exceeding 10K.**
+
+-- --
+
+```{r}
+
+# Creating a new subset data fram called -> "Highsodium".
+# Subsetting USDA with sodium as the subset parameter and value > 10K.
+
+# This will contain "Observations" listed as foods containing sodium > 10K.
+HighSodium <- subset(USDA, Sodium > 10000)
+
+```
+
+-- --
+
+#### We need to see how many ovservations this data frame has, and this can be done by using function **nrow()**.
+
+* #### nrow computes the no. of rows in the data frame HighSodium.
+
+-- --
+
+```{r}
+nrow(HighSodium)
+
+# Since there are not many, we can output there names by looking at there discription vector.
+```
+
+#### __Note:__ This time we can't simply output using our "old data frame". 
+
+* #### __Why?__, well _Description vector_ now **is not associated with the USDA data frame**.
+* #### But rather with **"HighSodium data frame"!**
+
+```{r}
+HighSodium $ Description
+```
+
+--- ---
+
+#### One of the food's such is caviar is well know to be top amongst food having high sodium content, But it dosen't seem's to appear in this list. **Let's find out**.
+
+#### **Issues:**
+
+* #### We have to track it down in our desctiption variable.
+* #### This could easliy become a tedious task.
+
+#### Hence R provides us with a very useful function called, **match()**, let take it for a spin!
+
+-- --
+
+```{r}
+match("CAVIAR", USDA $ Description )
+
+# Now let's use the index to find caviar and how much "mgs of sodium"" it contains  / 100 gms of caviar.
+
+USDA $ Sodium[ 4154 ]
+
+# A neat trick to combine the above two step in a single one is as follows:
+
+USDA  $ Sodium[ match( "CAVIAR", USDA $ Description )]
+```
+
+
+> #### INFERENCE
+
+--- ---
+
+* #### contains 1500 mgs of Sodium / 100 grams of caviar.
+    * #### This is very small compared to 10K mgs or 38K mgs.
+    
+* #### But, is it a fair comparison?
+    * #### maybe the best way to find "how big the value is" by comparing it to:
+        * #### Mean & Standard Deviation.
+        
+--- ---
+        
+```{r}
+# R summary function will provide us with the "Mean", but not "Standard Deviation". 
+summary(USDA $ Sodium )
+
+# To compute the Standard Deviation, recall that "sd()" computes it.
+sd( USDA $ Sodium )
+
+```
+
+--- ---
+
+#### **Interesting!** why does it gives us the result "NA"?
+
+* #### Simply because we forgot to remove the non-available entries before computing our satistical measure.
+
+--- ---
+
+``` {r}
+sd( USDA $ Sodium, na.rm = TRUE )
+```
+
+
+> ## Conclusion
+
+--- ---
+
+####**Note:** if we sum the mean and the standard deviation, we obtain around 1,400 milligrams, which is still smaller than the amount of sodium in 100 grams of caviar.
+
+
+#### ***Well, this means that caviar is pretty rich in sodium
+compared to most of the foods in our data set***
+
+--- ---

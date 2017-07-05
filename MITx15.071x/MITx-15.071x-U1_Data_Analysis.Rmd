@@ -1,0 +1,136 @@
+---
+title: "MITx15.071x-Data-Analysis-Plots&SummaryTables"
+author: "Rahul Yadav"
+date: "April 12, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = "C:/Users/pySag/Desktop/MITx15.071x" )
+```
+--- ---
+> ## Loading our data set
+
+```{r}
+WHO <- read.csv("C:/Users/pySag/Desktop/MITx15.071x/Datasets/WHO.csv")
+```
+
+
+ ```{r}
+ library(plotly)
+
+ ```
+
+-- --
+
+> ## __Visualization tool: The Histogram__
+
+--- ---
+
+```{r}
+plot_ly(x = WHO$CellularSubscribers, type = "histogram") 
+```
+
+> ## __Visualization toool: The Boxplot__
+
+--- ---
+
+* __A box plot is useful for understanding the statistical range of a variable.__
+    * This box plot shows how life expectancy in countries varies according to the region the country is in. 
+    * The box for each region shows the _range_ between the _first_ and _third quartiles_ with __the middle line__ marking the __median value__. 
+
+* The __dashed lines__ at the _top and bottom of the box_, often called __whiskers__,
+    * show the _range_ from the __minimum to maximum values__,
+    * excluding any outliers, which are plotted as circles.
+    
+* __Outliers__ are _defined_ by first computing
+    * the difference between the first and third quartiles, or the height of the box.
+
+
+```{r}
+# Following is the R code to draw a boxplot of Region vs LifeExpectancy.
+plot_ly( x = WHO$Region, y = WHO$LifeExpectancy, type = "box", ylab = "Life Expectancy")
+```
+
+> ### Understanding our boxplot for Region vs LifeExpectancy
+
+--- ---
+
+This box plot shows us the following:
+
+1. _Europe_ has the __highest median life expectancy__.
+
+2. The _Americas_ has the __smallest inter-quartile range__, and 
+
+3. The _Eastern Mediterranean_ region has the __highest overall range of life expectancy__ values.
+
+-- --
+
+> ## __Summary Tables__
+
+This is similar to what we saw in the summary output and counts the number of observations in each category of Region.
+
+--- --- 
+
+```{r}
+table(WHO $ Region)
+```
+    
+__Note:__ Tables work well for variables with only a few possible values.
+
+-- --
+
+> ### Extracting _more information_ on __Numerical Variables__ using __tapply()__.
+
+``` {r}
+## syntax: tapply( vector, step by, function )
+tapply(WHO$Over60, WHO$Region, mean)
+```
+
+__Note/FIX__: If somehow tapply throw back an error of "length not matching in arguments, just import your data set through r console. Make sure it's in the global environment.
+
+-- --
+
+> **Understanding tapply()**
+
+In general, **tapply() splits the data by the second argument, then applies the third argument function, to the variable given as the first argument** as formerly mentioned in the chunk above.
+
+Here's the following explaination of the result we obtained from the above code chunk we executed:
+
+1. The mean % of population in African region is --> 5%
+2. The mean % of population "over 60" in European countries is --> 20%.
+
+To understand better, here's another example:
+
+``` {r}
+tapply( WHO $ LiteracyRate, WHO $ Region, min)
+```
+
+--- --- 
+
+> ## Handling missing values in our data set.
+
+If we closely go throught the output churned by the above chunk, there's **data marked as NA(missing)**, this is not good for data analysis, why? well here are the following reasons:
+
+1."missing data" may give us __incorerct results__.
+2. worse "mislead" us into persuing something undesirable. 
+
+####Question is how do we take care of it?
+
+Well there are techniques through which R allows us to handle such issues easily.
+
+```{r}
+tapply(WHO $ LiteracyRate, WHO $ Region, min, na.rm = TRUE )
+```
+
+
+> **Quiz** 
+
+Use the tapply function to find the average child mortality rate of countries in each region.
+
+Which region has the lowest average child mortality rate across all countries in that region?
+
+```{r}
+tapply(WHO $ ChildMortality, WHO $ Region, mean )
+```

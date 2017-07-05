@@ -1,0 +1,169 @@
+---
+title: "Unit4 - Trees"
+author: "Rahul Yadav"
+date: "May 4, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit $ set( root.dir = "C:/Users/pySag/Desktop/MITx15.071x")
+```
+
+![Banner](C:\Users\pySag\OneDrive\Pictures\Camera Roll\decision tree.jpeg)
+
+## { .tabset .tabset-fade .tabset-pills }
+
+### Judge, Jury & Classifier
+
+-- --
+
+#### __[ OUTLINE ]__
+
+-- --
+
+#### In this lecture sequence we are going to be doing the following:
+
++ #### How analytics can be used to predict the outcomes of court cases in US.
+
++ #### We are going to use a very interpretable model called _C.A.R.T_
+
+    - #### _C.A.R.T_ : __Classification and Regression Trees__.
+    - #### And a related method called __Random Forests__.
+    
++ #### Legal academics and Political scientists regulary make predictions of SCOTUS.
+
+    - #### This is done using detailed studies of cases & Individual justices.
+      
+-- --
+
+#### __[Predicting Supreme Court Cases ]__
+
+-- --
+
++ #### In 2002, Anderew Marting (Prof. at U of W ) utilized statistical models to predict decisions from data.
+
++ #### Objective was to see if _analytical model could outperform the expertise and intution_ of large group of experts.
+
++ #### Martin used _C.A.R.T_ or Clssification & Regression Trees.
+
+    - #### Outcomes of this model are _Binary_.
+
++ #### _Why not Logistic Regression?_
+
+    - #### Logistic Regression models are generally _non-interpretable_.
+    - #### Although Model Coeffs. indicate importance and relative effects of variables,
+    - #### But do not provide a simple explaination to _how decision is made_.
+
+-- --
+
+#### __[ Lecture 3 : C.A.R.T ]__
+
+-- --
+
++ #### __( Data ) :__
+
+
+    - #### Time frame of Cases : 1994 - 2001 
+    
+    - #### _Rare data set_ - SCOUTS didn't change in over 180 years
+    
+    - #### _Objective_ : Focus on predicting Justice "Stevens" decisions.
+    
+    - #### Started out _moderate_, but becane more _liberal_.
+    
+    - #### Self-proclaimed conservative. 
+
+
++ #### __( Variables ) :__
+
+
+    - #### __Dep.Var__ : Did Jst. Stevens _reversed_ the lower court decision?
+    
+        - #### A binary variable. _Reverse_ := 1, _Affirm_ := 0.
+    
+    - #### __Indep.Var__ : Props. of the case
+    
+        - #### _Circuit Cour of origin_ ( 1-11th - CC, DC, FED), a total := 13 courts.
+        
+        - #### _Issue area of case_ := Category ( e.g., civil rights, federal taxation ).
+        
+        - #### _Type of petitioner_, _Type of respondent_ (e.g., US, a employer )
+        
+        - #### _Ideological direction of L.C decision_, ( conservative or liberal ).
+        
+        - #### _Petitioner Argument_, law/practise ( constitutional or unconstitutional )  
+        
+       
++ #### __( Log.Reg for Jst.Stevens )__
+
+
+    - #### Some sig.fig vars. and their coeffs. :
+    
+        - #### Case is from 2nd CC: +1.66 ( reversed )
+        
+        - #### Case is from 4th CC: +2.82 ( reversed )
+        
+        - #### LC decison is liberal: -1.22 ( Affirm )
+        
+    - ####  This makes things complicated...
+    
+        - #### Low interpretability ( whihc factors are more sig.fig? )
+        
+        - #### Difficult to quickly evaluate ( what prediction for a new case? )
+
++ ####__( About C.A.R.T )__:
+
+    
+    - #### Build a tree by _splitting on vars_ ( i.e. Indep.Vars ).
+    
+    - #### To predict an outcome: 
+    
+        - #### _Follow the splits_.
+        
+        - #### At end, predict _most freq. outcome_
+        
+    - #### Does not assume a _linear model_ ( i.e., Logestic or Linear Regression )
+    
+    - #### Very _Interpretable_ model.
+ 
+    
++ #### __( Splits in CART )__:
+
+![Splits in CART](C:\Users\pySag\Desktop\MITx15.071x\CART-splits.JPG)
+
+
++ #### __( Representation of CART model )__:
+
+![CART representation](C:\Users\pySag\Desktop\MITx15.071x\CART-rep.JPG)
+
+-- -- 
+
++ #### __(Note):__ 
+    
+    - #### _Yes_ repsonse is always to the _left_.
+        
+    - #### _No_ repsonse is always to the _right_.
+        
+    - #### Start at the top.
+    
+-- --
+
+#### __[ Lecture 4: Splitting & Prediction ]__
+
++ ####  How many splits to generate?
+
+  - #### 1.) Setting a lower bound for the number of data points, in each subset.
+  
+  - #### 2.) Compute the % of data in a subset o feach type of outcomes.
+-- --
+
+### D2 Hawkeye story
+
+-- --
+
+### Decision Trees
+
+-- --
+
+-- --

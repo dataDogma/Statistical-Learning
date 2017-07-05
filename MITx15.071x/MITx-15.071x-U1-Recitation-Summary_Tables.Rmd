@@ -1,0 +1,163 @@
+
+title: "MITx15.071x-U1-Recitation-Summary Tables.Rmd"
+author: "Rahul Yadav"
+date: "April 14, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir =  "C:/Users/pySag/Desktop/MITx15.071x")
+```
+
+
+> ## Refresher
+
+--- ---
+
+#### In Previous recitation, we did the following:
+
+* #### Created new variables.
+
+* #### Added to our data frame "USDA".
+
+* #### These variables were namely:
+
+    * #### HighSodium.
+    * #### HighFat.
+    * #### HighCarbs.
+    * #### HighProtein.
+    
+--- ---
+
+> ## Outline
+
+--- ---
+
+#### In this session, we are going to discuss the following things:
+
+* #### Understanding our data more closely.
+
+* #### Identifying relationships b/w our variables.
+
+    * #### How? By using __table()__ & __tapply()__ functions.
+
+* #### Answering the following question:
+
+    * #### To figure out how many foods have High Sodium level than average?
+    
+        * #### By looking at the HighSodium variable and count the foods that have value 1.
+    
+--- ---
+
+> ## Analysis
+
+--- ---
+
+Let's find out how many food have High Sodium content and How many doesn't.
+
+
+--- ---
+
+``` {r comm}
+# Loading our data set.
+
+USDA <- read.csv("C:/Users/pySag/Desktop/MITx15.071x/Datasets/USDA.csv")
+str(USDA)
+
+# Counting High Sodium values.
+
+table(USDA $ HighSodium)
+
+# Let's see how many foods have both high sodium & high fat.
+
+table(USDA $ HighSodium, USDA $ HighFat)
+## 1st row belogs to 1st input argument and coloumn correspond to 2nd input.
+```
+
+--- ---
+
+> #### **[ INFERENCE ]:** Interpreting our previous result as follows:
+
+* #### 3,529 foods  ----------- __low__ sodium & __low__ fat.
+
+* #### 1,355 foods  ----------- __low__ sodium but __high__ fat.
+
+* #### 1,378 foods  ----------- __high__ sodium but __low__ fat.
+
+  * #### 712 foods  ----------- __both__, __high__ sodium & __high__ fat.
+  
+
+--- ---
+
+#### What if we want to compute the average amount of iron sorted by high and low protein?
+
+#### We can do this by following way:
+
+* #### Using tapply() to extract info on iron variable in our USDA data frame.
+
+* #### Then providing 2nd arguments as both high and low protein.
+
+* #### Followed by a 3rd argument, mean.
+
+#### Lets take this for a spin in our r chunk.
+
+--- ---
+
+``` {r}
+
+# Lets compute the avg. amount of Iron sorted by Protein levels.
+tapply( USDA $ Iron, USDA $ HighProtein, mean, na.rm = TRUE)
+
+# Now, lets compute the max. amount of "Vitamin C" sorted by high & low Carbohydrate
+
+tapply( USDA $ VitaminC, USDA $ HighCarb, max, na.rm = TRUE)
+
+```
+
+--- ---
+
+#### __Inference:__ What exactly does __tapply__ do?
+
+--- ---
+
+### **The following observations are made:**
+
+1. #### The first tapply() computes the average amount of Iron sorted by High Protein levels.
+
+2. #### The 2nd tapply() computes the maximum amount of "VitaminC" sorted by High & Low Carbohydrates.
+
+![](C:\Users\pySag\OneDrive\Pictures\what_tapply.JPG)
+
+
+--- ---
+
+> #### __How about investigating whether food with High Carbs have generally High Vitamin C content or vice-versa?__
+
+--- ---
+
+#### To do this, we will make just a small change in our previous code.
+
+* #### Instead Using 'max' function, we will use 'summary'.
+    * #### This will give us a statistical info or clear picture to support or reject our claim.
+    
+--- ---
+
+``` {r}
+
+tapply( USDA $ VitaminC, USDA $ HighCarb, summary, na.rm = TRUE)
+
+```
+
+--- ---
+
+> ## __Conclusion__
+
+--- ---
+
+#### From the former results, we can say the following:
+
+* #### ***In general, Foods with High Carbs are on average richer in vitamin C***
+    * #### As compared to foods with Low Carbs content.
+    
+--- ---

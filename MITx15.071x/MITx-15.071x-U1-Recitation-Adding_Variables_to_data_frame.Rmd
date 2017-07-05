@@ -1,0 +1,115 @@
+---
+title: "MITx-15.071x-U1-Reciation-Adding_data_to_data_frame"
+author: "Rahul Yadav"
+date: "April 13, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir =  "C:/Users/pySag/Desktop/MITx15.071x")
+```
+
+
+> #### Outline
+
+In this section we are going to add a new variable to our data frame, that takes the value 1 if the food has higher sodium than average, and 0 if the food has lower sodium than average.
+
+To check if the first food in the dataset has higher amount of sodium compared to the average, we can do the following:
+
+* Dig up the 1st value in the Sodium vector.
+
+``` {r}
+# Lets first import the dataset.
+USDA <- read.csv("C:/Users/pySag/Desktop/MITx15.071x/Datasets/USDA.csv")
+USDA $ Sodium[1] > mean( USDA $ Sodium, na.rm = TRUE)
+
+# How about all the food in the sequence till 50.
+USDA $ Sodium[1:50] > mean( USDA $ Sodium, na.rm = TRUE)
+
+```
+
+> #### Inference
+
+--- ---
+
+#### The following observations we came up with:
+
+* #### 1st food --> higher sodium content than average.
+* #### 50th food --> lower sodium content than average.
+
+--- ---
+
+#### How about all observations:
+
+
+```{r}
+HighSodium <- USDA $ Sodium > mean( USDA $ Sodium, na.rm = TRUE )
+
+# Let's look at the structure of HighSodiuum
+
+str(HighSodium)
+
+# What up with this values:
+# The former vector has values either TRUE or FALSE, hence are called logical.
+```
+
+--- ---
+
+#### But we want all observations to be either 1 or 0.
+Fortunately, R provide us with another function called **as.numeric()**, which is **a type convertion to numeric vector form any non-numeric vector.**
+
+--- ---
+
+```{r}
+HighSodium <- as.numeric( USDA $ Sodium > mean( USDA $ Sodium, na.rm = TRUE))
+# Let's now check.
+str(HighSodium)
+```
+
+
+> ## Adding a vector to a data frame.
+
+--- ---
+
+#### Now the vector, __HighSodium__ is _not associated_ with the "USDA data frame".
+#### __Question__ is how can we add the vector "HighSodium" to our USDA data frame.
+
+#### **To do this, simply add '$' with HighSodium with our existing USDA data frame.**
+
+--- ---
+
+```{r}
+USDA $ HighSodium <- as.numeric( USDA $Sodium > mean( USDA $ Sodium, na.rm = TRUE))
+
+#check if HighSodium is added to our USDA data frame.
+str(USDA)
+
+#Now add other vectors to the data frame as follows, Protein, Carbohydreates, Fats.
+USDA $ HighProtein <- as.numeric( USDA $ Protein > mean( USDA $ Protein, na.rm = TRUE))
+
+USDA $ HighFat <- as.numeric( USDA $ TotalFat > mean( USDA $ TotalFat, na.rm = TRUE))
+
+USDA $ HighCarb <- as.numeric( USDA $ Carbohydrate > mean( USDA $ Carbohydrate, na.rm = TRUE))
+
+#check the other variables are added or not.
+str(USDA)
+
+```
+
+--- ---
+
+```{r results='hide'}
+# Lets save our new data frame.
+# We dont want our output to display, as it will too ugly.
+write.csv(USDA, file = "C:/Users/pySag/Desktop/MITx15.071x/Datasets/USDA.csv")
+```
+
+--- ---
+
+``` {r}
+str(USDA)
+```
+
+
+

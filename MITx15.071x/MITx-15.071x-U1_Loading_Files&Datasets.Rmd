@@ -1,0 +1,99 @@
+---
+title: "MITx-15.071x-U1-Loading_Data_Files"
+author: "Rahul Yadav"
+date: "April 10, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = "C:/Users/pySag/Desktop/Major_Project_Summer_2016/Sectorwise_Data_Sets/Health & Family welfare" )
+```
+
+
+
+![](C:\Users\pySag\OneDrive\Pictures\Camera Roll\Loading data files.jpg)
+
+## ABOUT:
+--- --- 
+
+Often as a Data Analyst, one has to work with **_external data files and data sets_**.
+Some common data file formats are as follows:
+
+* __.csv__ or _Commma Seperated Values ~ variables_.
+* __.xml__ or _Extensible markup language_ files.
+* __.json__ or _Javascript object notation_.
+* __.txt__ or _simple text_.
+
+As for today, we are going to work with only __.csv__ files.
+
+
+
+## Objective:
+--- ---
+
+* Loading a .csv file from an external location using command line in R console.
+    + Prelimanary:
+        + Viewing current working directory.
+        + Setting working directory to data file ~ data set path.
+
+
+## Implementation
+--- ---
+
+> __Viewing Current Working directory__, _command_ : **getwd()**
+
+```{r}
+getwd()
+```
+
+> __Setting Current Working directory__ to __data set/ data file__ path.
+
+``` {r}
+
+# Lest's view the files which we want to import. For this session we would like to import "WHO.csv"
+list.files()
+
+# Also a good idea will be to save our workspace for frequent usage of our data files.
+save.image()
+```
+-- --
+
+__NOTE__ : Everytime you want to work with a data file, you have to manually set the directory again each time. This is the only issue with the R markdown, but until somebody finds a way to resolve this issue we have to manage things on our own.
+__Update!__ : Using __Knitr::opts_knit$set(root.dir = "insert working directory path")__. It will set the working directory for all code chunks!
+
+-- --
+> __Loading__ the data set/data file_ with R built in function, __read.csv()__
+``` {r}
+WHO <- read.csv("WHO.csv")
+```
+
+-- --
+
+> __Viewing the Summary of our data file__
+
+A good way to look at our data without getting ourselves into it's complexity is by summarizing our data as a summary statistics.
+
+We can do this by two functions offered by R. Following are the two functions that we are going to use:
+
+1. **summary()**
+2. **structure**
+
+
+```{r}
+summary(WHO)
+```
+
+**Note**: While we can use structure(), using in R markdown document is not a good idea. Why? because it will return a table of all atrributes and will make things messy. Hence we refrain ourselves for using structure(). It is best utilized in Rstudio console only.
+
+-- --
+
+##Analysis:
+
+If we look at the summary of our "WHO" data set, it has 195 obv. of 13 variables.
+Some variables are distinctive, for example **Country** & **Region** has **factor** data type.
+
+> A **Factor** data type contains categorical data aswell as numerical data binded into single entity called _Factor_.
+
+We also have some variables with missing values, such type of missing entitys are marked as **NA**.
+Missing values can generated error and don't help in data analysis. Hence a good thing will be to replace these with normalized values of other similar variables.

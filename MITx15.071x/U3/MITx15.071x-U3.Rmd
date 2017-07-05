@@ -1,0 +1,532 @@
+---
+title: "MITx15.071x-U3-Logistic Regression"
+author: "Rahul Yadav"
+date: "April 27, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set( root.dir = "C:/Users/pySag/Desktop/MITx15.071x")
+```
+
+![](C:\Users\pySag\OneDrive\Pictures\Camera Roll\logistic regression banner.jpeg)
+
+## {.tabset .tabset-fade .tabset-pills }
+
+### __Modeling the Expert__ 
+
+-- --
+
+####  Before we get into anlytics of patients medical claims, first let's understand _what medical claim data is?_
+
+
+#### __Medical claims include__
+
++ #### Diagnosis code.
+
++ #### Procedures code.
+
++ #### Costs.
+
+
+####__Pharmacy Claims__
+
++ Drugs
+
++ Quantity of these drugs.
+
++ Prescribing Doctor.
+
++ Medication Cost.
+
+####__[Issues]__
+
++ Although ELectronically Available & Standardized.
+
+  - Not 100% Accurate.
+  
+  - Under-reporting is common.
+  
+  - Claims are vague.
+
+####__[Claims sample]__
+
++ dataset is created from large insurance claims database.
+  
+  - Randomly selected 131 diabetes patients.
+  
+  - Ages range from 35 to 55.
+  
+  - Cost $10000 to $20000.
+  
+  - Sept 1, 2003 to - August 31, 2005
+  
+  - Expert physician reviewed the sample.
+  
+  
+####__Wrote descriptive notes:__ 
+
+  - "Ongoing use of Narcotics"
+  
+  - "Only on Avandia, Not a good choice drug"
+  
+  - "Had regular visits, Mammorgrams & Immunization"
+  
+  - "Was given Home testing supplies"
+  
+  
+####__[ Expert Assesment ]__ 
+
+  - Rated quality on the basis of two point scale.
+  
+  - Either "Poor" or "Good".
+  
+  
+####__[ Variable Extraction ]__
+
+  - Dependent Variable
+  
+      - __Quality of care__
+  
+  - Independent Variable
+  
+      - ongoing use of _narcotics_.
+      
+      - _Only on Avandia_, not a good first choice drug.
+      
+      - Had _regular vistits, mammograms and immunization_.
+      
+      - _Home testing supplies_.
+      
+      
+####__[ Predicting Quality care ]__
+
+  - The dependent variable is modeled as a binary variable
+    
+    - 1 if low-quality care, 0 if high quality care.
+    
+  - This is a _Categorical_ varible.
+  
+    - have small no. of possible outcomes.
+    
+  - Linear Regression would predict a _Continuous outcome_.
+  
+  
+####__[ From predicting continuous outcomes to categorical outcomes ]__
+
+  - Only want to predict 1 or 0.
+  
+  - Could Round outcomes to 0 or 1.
+  
+  - But we _can do better_ with _logistic regression__.
+  
+-- --
+
+
+####__[ QUICK QUESTION 2 ]__
+
+```{r}
+# Suppose the coefficients of a logistic regression model with two indep var are as follows:
+    
+    # Beta_0 := -1.5, Beta1 := 3, Beta2 := -0.5
+    # Indep. var, x1 := 1, x2 := 5
+
+#[Question] : What is the value of logit for this observation? 
+# ( Recall ) : logit := log(Odds)
+
+Logit <- -1.5 + ( 3 * 1 ) + ( -0.5 * 5 ) 
+
+# [ Question ] : What is the value of "Odds" for former observation?
+# (Note) : Computing exponention function in r := exp( variable name, value )
+
+exp( Logit )
+
+# [ Question ] : What is the value of P(y = 1) for this observation?
+1 / 1 + exp( Logit )
+```
+
+-- --
+
+
+#### __LOGISTIC REGRESSION MODEL IN R__
+
+-- --
+``` {r}
+quality <- read.csv("C:/Users/pySag/Desktop/MITx15.071x/Datasets/quality.csv")
+
+# Let's look at the structure & summary of the dataset.
+str(quality) 
+summary(quality)
+
+# Let's also see "How many people took good care or vice-versa"
+table( quality $ PoorCare )
+
+# Baseline method for linear Regression
+  # Former week, we compared our prediction to baseline method of predicting average outcome.
+  
+# [In Classification problem ] : Baseline is to predict "most frequent outcomes" for all observations.
+
+  # Since good care is more common, hence we will predict all patients receiving good care.
+
+baseline <- 98 / 131 # := 75% baseline accuracy
+
+# ----------------------------------------------------
+
+# [Splitting our dataset] : R package called "caTools" split a dataset randomly
+
+  # this package provides a function call sample.split()
+  # To ensure consitent split, we "set seed value"
+
+  # sample.split takes two args, 1.) Outcome var 2.) % of data --> "Training set".
+  # It makes well balance test set too,  same % of data --> "Test set"
+
+library(caTools)
+
+set.seed(88)
+split <- sample.split( quality $ PoorCare, SplitRatio = 0.75)
+
+split # TRUE := obv in Training set, FALSE := obv in Test set.
+
+# --------------------------------------
+
+qualityTrain <- subset( quality, split == TRUE )
+qualityTest <- subset( quality, split == FALSE )
+
+# Let's view the now of observation in each set.
+nrow( qualityTrain )
+nrow( qualityTest )
+
+# ---------------------------------------
+
+# [ Building the model : using Training set ] 
+
+  # Dependent var := PoorCare
+  # Indep var := OfficeVisits, Narcotics
+
+  # logistic function in R: "generalized linear model" or glm()
+  # eq := glm( dep.var ~ indep.vars, dataset, family )
+
+QualityLog <- glm( PoorCare ~ OfficeVisits + Narcotics, data = qualityTrain, family = binomial ) #family objects provide details of the model, in this case --> binomial outcome
+
+summary(QualityLog) # output similar to that of Linear Regression model
+
+# ------------------ [ Interpreting the Summary results ] ------------------
+
+# What we want to focus --> coefficient table.
+
+    # Both indep.var coeff. := (+ive), Sig.fig := low
+    # Meaning := Higher values ~ Higher Poor Quality in care.
+
+    # AIC ~ R-squared in former model := Measure the quality of model.
+    #     := can only be compared b/w models on the same data set.
+    # AIC := low ~ good model.
+
+
+# -------------------- [Predictions on Training set ] -----------------------
+
+predictTrain <- predict( QualityLog, type = "response") # will probability values b/w 0 & 1
+summary(predictTrain)
+
+# Expectations : "Higher prob values" for "Actual poor care cases" 
+
+    # predicTrain : Predicted Poor care probability values.
+    # PoorCare : Actual values
+
+tapply(  predictTrain, qualityTrain $ PoorCare, mean )
+
+# TRUE cases := 0.1894512, False cases := 0.4392246
+# It's Good sign := predicting "higher prob for actual poor casees""
+
+```
+
+-- --
+
+
+#### __[QUICK QUESTION 3 ]__
+
+-- --
+
++ #### In R, create a logistic regression model to predict "PoorCare" using the independent variables "StartedOnCombination" and "ProviderCount". 
+   
+   - Use the training set we created in the previous video to build the model.
+   
+  #### Let's adjust our training model accuracy by choocig different set of indep.vars as follows:
+  
+  - #### _StartedOnCombination_
+  
+  - #### _ProviderCount_
+  
+``` {r}
+# Problem 1:
+QualityLog <- glm( PoorCare ~ StartedOnCombination + ProviderCount, data = qualityTrain, family = binomial )
+summary(QualityLog)
+
+# Problem 2:
+
+predictTrain <- predict( QualityLog, type = "response") # will probability values b/w 0 & 1
+summary(predictTrain)
+
+tapply( predictTrain, qualityTrain $ PoorCare, mean )
+
+# -----------------------[ Interpreting the output ] -----------------------------
+
+    # TRUE poor care cases(TRUE outcomes) := 0.32, 
+    # True good care Cases( FALSE outcomes ) := 0.23
+
+    # Good Sign : predicting "higher prob for actual poor casees"
+```
+
+-- --
+
+#### __[ Thresholding ]__
+
+-- --
+
+``` {r}
+# Let's compute some confusion matrices in R using different threshold values.
+
+    # 1.) Make some classification tables, using different t values.
+
+    # 2.) Then, Compute Sensitivity & Specificity. 
+
+
+# 1. use t := 0.5, label := Actual (rows) vs Predictions (coloumns)
+
+    # Actual := qualityTrain
+    # Predicted := PredictTrain vs "t := 0.5 "
+        
+        # return TRUE, if prediction values > 0.5
+        # else False.
+
+table( qualityTrain $ PoorCare, predictTrain > 0.5 )
+
+# ------------------------ [ Interpreting the Results ] ----------------------------
+
+      # 0 := good care, 70 % cases : Actual == Predicted, Mistakes( F.P ) := 4 %
+
+      # 1 := poor care, 10 % cases : Actual == Predicted, Mistakes( F.N ) := 15 %
+
+#2
+TN <- 70
+FP <- 4
+TP<- 10
+FN <- 15
+
+Sensitivity <-  TP / ( TP + FN )
+Specificity <- TN / ( TN + FP )
+
+# -------------------[ Generating ROC curves ] -----------------------------------
+
+# 1.) Install package "ROCR"
+# 2.) Load the package using library()
+# 3.) We'll be using predictions generated earlier on our Training set to create ROC curve.
+# 4.) call "prediction()" of ROCR.
+
+    # 4.1) supply args1 := prediction of Training set
+    # 4.2) supply args2 := Actual value of data points, i.e. qualityTrain $ PoorCare
+
+# 5.) Next, cal "performance"
+
+    # 5.1) supply args1 := ROCR curve 
+    # 5.2) supply args2 := plotting obj i.e True Positive Rate or False Positive rate.
+library( ROCR )
+
+ROCRpred <- prediction( predictTrain, qualityTrain $ PoorCare ) # defines plot on x & y axis
+ROCRperf <- performance( ROCRpred, "tpr", "fpr")
+
+plot(ROCRperf)
+plot(ROCRperf, colorize = TRUE)
+plot(ROCRperf, colorize = TRUE, print.cutoffs.at = seq(0,1,0.1), text.adj = c(-0.2, 1.7))
+
+```
+
+-- --
+
+#### __[QUICK QUESTION 4 ]___
+
+-- --
+
+#### This question uses the original model with the indep.var "OfficeVisits" & "Narcotics".
+
+``` {r}
+QualityLog <- glm( PoorCare ~ OfficeVisits + Narcotics, data = qualityTrain, family = binomial )
+
+# Compute the test set predictions.
+predictTest <- predict( QualityLog, type = "response", newdata = qualityTest )
+
+# Compute the AUC
+library(ROCR)
+ROCRpredTest <- prediction( predictTest, qualityTest $ PoorCare )
+
+auc <- as.numeric( performance( ROCRpredTest, "auc")@y.values )
+```
+
+-- --
+
+### __The Framingham Heart Study__
+
+-- --
+
+-- --
+
+### __Election Forecasting__
+
+-- --
+
+-- --
+
+### __Assignments 1__
+
+-- --
+songs <- read.csv("C:/Users/pySag/Desktop/MITx15.071x/Datasets/songs.csv")
+
+str(songs)
+songsFrm2010 <- subset( songs, year >= 2010 )
+str(songsFrm2010)
+
+songsMJ <- subset( songs, artistname == "Michael Jackson" )
+str(songsMJ)
+
+# Which of this songs made it to top 10?
+songsMjtop10 <- subset( songsMJ, Top10 == 1)
+songsMjtop10 $ songtitle
+
+
+#What are the values of this variable that occur in out dataset?
+sort( unique( songs $ timesignature ) )
+table(songs $ timesignature )
+
+# Out of all the songs in out dataset, the song with the highest tempo is one of the following songs, which one is it?
+which.max( songs $ tempo)
+songs $ tempo[6206]
+songs $ songtitle[6206]
+
+# 2.1
+How many ovservations are in the trainings set?
+SongsTest <- songsFrm2010
+SongsTrain <- subset( songs, year < 2010 )
+str(SongsTrain)
+
+#2.2 Modeling
+nonvars = c("year", "songtitle", "artistname", "songID", "artistID")
+
+#removing the varibales
+SongsTrain = SongsTrain[ , !(names(SongsTrain) %in% nonvars) ]
+
+SongsTest = SongsTest[ , !(names(SongsTest) %in% nonvars) ]
+
+SongsLog1 = glm(Top10 ~ ., data=SongsTrain, family=binomial)
+summary(SongsLog1)
+
+#3
+
+What is the collinearit b/w loudness and energy?
+cor(SongsTrain$loudness,SongsTrain$energy)
+
+SongsLog2 = glm(Top10 ~ . - loudness, data=SongsTrain, family=binomial)
+summary(SongsLog2)
+
+SongsLog3 = glm(Top10 ~ . - energy, data=SongsTrain, family=binomial)
+summary(SongsLog3)
+
+#4
+predictMod3 <- predict(SongsLog3, type="response", newdata=SongsTest)
+table(SongsTest$Top10, predictMod3 >= 0.45)
+Accuracy <- (309 + 19 ) / ( 309 + 19 + 40 + 5 )
+Accuracy
+
+
+# Validating our model
+# What would the accuracy of the baseline model be on the test set? 
+
+table(SongsTest$Top10)
+314 / ( 314 + 59 )
+
+# How many songs does Model 3 correctly predict as Top 10 hits in 2010 (remember that all songs in 2010 went into our test set), # using a threshold of 0.45?
+table(SongsTest$Top10, predictMod3 >= 0.45)
+
+# How many non-hit songs does Model 3 predict will be Top 10 hits (again, looking at the test set), using a threshold of 0.45?
+table(SongsTest$Top10, predictMod3 >= 0.45)
+
+
+# What is the sensitivity of Model 3 on the test set, using a threshold of 0.45?
+19/(40+19)
+
+# What is the specificity of Model 3 on the test set, using a threshold of 0.45?
+309/(309+5)
+-- --
+
+### Assignment 3
+
+-- --
+parole <- read.csv("C:/Users/pySag/Desktop/MITx15.071x/Datasets/parole.csv")
+str(parole)
+
+paroleViolation <- subset( parole, violator == 1)
+str(paroleViolation)
+
+table( parole $ crime )
+factored <- c( parole $ state, parole $ crime)
+summary( as.factor( factored ) )
+
+
+# 3
+
+set.seed(144)
+library(caTools)
+split = sample.split(parole$violator, SplitRatio = 0.7)
+train = subset(parole, split == TRUE)
+test = subset(parole, split == FALSE)
+
+# 4
+train$state <- as.factor( train $ state )
+train$crime <- as.factor(train$crime)
+logisModel <- glm(violator~., data=train, family="binomial")
+
+summary(logisModel)
+
+# What can we say based on the coefficient of the multiple.offenses variable? 
+# recall the formula of odds (odds = e^(b0 + b1x1 + b2x2...)) 
+# According to the model, what is the probability this individual is a violator? 
+y = (-4.2411574) + (0.3869904) + (0.8867192) + (-0.0001756 * 50) + (-0.1238867 * 3) + (0.0802954 * 12) + (0.6837143)
+
+exp(y)
+1 / (1 + exp(-y))
+
+# 5
+What is the maximum predicted probability of a violation?
+test$crime <- as.factor(test$crime)
+test$state <- as.factor(test$state)
+predictTest = predict(logisModel, type="response", newdata = test)
+max(predictTest)
+
+  # Model "Sensitivity"
+In the following questions, evaluate the model's predictions on the test set using a threshold of 0.5.
+table(test$violator, predictTest >= 0.5)
+sensitivity <- 12 / ( 11 + 12 )
+specificity <- 167 / ( 167 + 12 )
+accuracy <- (167 + 12) / (167 + 12 + 12 + 11)
+
+# What is the accuracy of a simple model that predicts that every parolee is a non-violator? table(test$violator)
+
+179/ (179 + 23)
+
+logisModel2 <- glm(violator ~., data = test, family="binomial")
+summary(logisModel2)
+test$crime <- as.factor(test$crime)
+test$state <- as.factor(test$state)
+predictTest = predict(logisModel2, type="response", newdata = test)
+table(test$violator, predictTest >= 0.40)
+  # model accuracy improves, suggesting our new model is much better than basline.
+
+
+# ROCR package
+library(ROCR)
+
+ROCRpred = prediction(predictTest, test$violator)
+auc = as.numeric(performance(ROCRpred, "auc")@y.values)
+auc
+-- --
+
+

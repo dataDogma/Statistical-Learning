@@ -1,0 +1,98 @@
+![](C:\Users\pySag\OneDrive\Pictures\Camera Roll\cuteBanner.jpg)
+
+---
+title: "MITx-15.071x-U1_Working_with_data"
+author: "Rahul Yadav"
+date: "April 10, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+### About:
+
+The following content is curated from MIT-15.071x, __Analytics Edge__ from __Unit 1: Introduction to Analytics__. Here's the workflow of the topcs that will be discussed during week 1:
+
+
+
+> * __Week-1__
+    + __Working with data__
+        + __Vectors & Data frames__
+
+
+
+### Working with data: Vectors & Data Frames.
+
+In this section we will discuss how to __C.R.U.D__ a __vector & data frames!__
+
+
+
+> __Creating a Vector in R.__
+
+```{r tidy = FALSE}
+Country <- c( "Brazil", "China", "India", "Switzerland", "USA")
+LifeExpectancy <- c(74,76,65,83,79)
+
+Country
+
+LifeExpectancy
+```
+__Note__: Combining "Characters" & "Numbers" as by default __vectors are atomic(single valued)__.
+
+> __Accessing Elements in R.__
+
+```{r}
+Country[3]
+
+LifeExpectancy[3]
+```
+
+> __Creating 'Sequences' in R.__
+
+```{r}
+seq(0,25, 2)
+```
+
+> __Creating a "Data Frame"__
+
+__note__: A Data frame allows us to combine multiple R object into a single data structure called a 'data frame' or simply 'frame'.
+
+```{r}
+CountryData <- data.frame(Country, LifeExpectancy)
+CountryData
+```
+
+It has two _coloumns ~ variables_ & five _rows ~ Observations_.
+
+> __Adding "new variables"" to our data frame__
+
+__Note__: To add a new variable ~ coloumn, _syntax:_ __dataframe $ new variable name = c(values)__.
+Ordering is important!
+
+```{r}
+CountryData $ Population = c( 1990000, 1390000, 1240000, 7997, 3180000 )
+CountryData
+```
+
+> __Adding "new coloumns" to our data frame.__
+
+__NOte__: To add a new coloumn ~ Observation.
+
+```{r}
+Country <- c( "Australia", "Greece" )
+LifeExpectancy <- c( 82, 81 )
+Population <- c( 23050, 11125 )
+
+NewCountryData <- data.frame( Country, LifeExpectancy, Population )
+NewCountryData
+```
+
+> __Combining two or more Data Frames using rbind() or cbind() functins in R.__
+
+```{r}
+Allcountrydata <- rbind( CountryData, NewCountryData )
+Allcountrydata
+```

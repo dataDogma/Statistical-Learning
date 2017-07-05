@@ -1,0 +1,19 @@
+---
+title: "MITx15.071x"
+author: "Rahul Yadav"
+date: "May 3, 2016"
+output: html_document: theme : cosmo
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = "C:/Users/pySag/Desktop/MITx15.071x")
+```
+
+{ .tabset .tabset-fade .tabset-pills }
+
+###
+
+###
+
+###

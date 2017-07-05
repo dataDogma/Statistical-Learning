@@ -1,0 +1,769 @@
+---
+title: "MITx15.071x-U1-Assignment1.Rmd"
+author: "Rahul Yadav"
+date: "April 15, 2016"
+output: 
+  html_document:
+    theme: cosmo
+    
+    
+---
+
+![](C:\Users\pySag\OneDrive\Pictures\Camera Roll\life-choices-facebook-banner.jpg)
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = "C:/Users/pySag/Desktop/MITx15.071x")
+```
+
+## {.tabset .tabset-fade .tabset-pills}
+
+--- ---
+
+### An Analytical Detective
+
+--- ---
+
+> ## Outline
+
+#### Crime is an international concern, but it is documented and handled in very different ways in different countries. In the United States, violent crimes and property crimes are recorded by the Federal Bureau of Investigation (FBI).  Additionally, each city documents crime, and some cities release data regarding crime rates. The city of Chicago, Illinois releases crime data from 2001 onward online.
+
+#### Chicago is the third most populous city in the United States, with a population of over 2.7 million people. The city of Chicago is shown in the map below, with the state of Illinois highlighted in red.
+
+![](C:\Users\pySag\Desktop\MITx15.071x\ChicagoMap.png)
+
+--- ---
+
+#### There are two types of crime:
+
+1. #### Violent Crimes.
+2. #### Property Crimes.
+
+--- ---
+
+> ## Problem outline
+
+#### In this problem, I'll be focusing on one specific type of "property crime" called as "Grand Theft Auto" or GTA.
+
+
+#### What is GTA?
+
+___A GTA is an act of stealing, or attempting to steal, a car.___
+
+#### In this Problem, I am gonna use some basic data analysis in R to understand the motor vechile thefts in Chicago.
+
+--- ---
+
+> ## Fetching the dataset.
+
+#### Our data set contains the following info as follows:
+
+* #### __ID:__ a unique identifier for each observation
+* #### __Date:__ the date the crime occurred
+* #### __LocationDescription:__ the location where the crime occurred
+* #### __Arrest:__ whether or not an arrest was made for the crime (TRUE if an arrest was made, and FALSE if an arrest was not made)
+* #### __Domestic:__ whether or not the crime was a domestic crime, meaning that it was committed against a family member (TRUE if it was domestic, and FALSE if it was not domestic)
+* #### __Beat:__ the area, or "beat" in which the crime occurred. This is the smallest regional division defined by the Chicago police department.
+* #### __District:__ the police district in which the crime occured. Each district is composed of many beats, and are defined by the Chicago Police Department.
+* #### __CommunityArea:__ the community area in which the crime occurred. Since the 1920s, Chicago has been divided into what are called "community areas", of which there are now 77. The community areas were devised in an attempt to create socially homogeneous regions.
+* #### __Year:__ the year in which the crime occurred.
+* #### __Latitude:__ the latitude of the location at which the crime occurred.
+* #### __Longitude:__ the longitude of the location at which the crime occurred.
+
+--- ---
+
+> #### __Let's load our dataset.__
+
+``` {R}
+mvt <- read.csv("C:/Users/pySag/Desktop/MITx15.071x/Datasets/mvtWeek1.csv")
+
+#1.1 Let's view the structure of our dataset.
+str(mvt)
+
+#1.2 Let's also look at the statistical summary of our dataset.
+summary(mvt)
+
+#1.3 What is the maximum value of the variable "ID"?
+max( mvt $ ID )
+
+#1.4 What is the min value of the variable "Beat"?
+summary( mvt $ Beat)
+
+#1.5 How many observations have value TRUE in the '"Arrest" variale?
+summary( mvt $ Arrest )
+
+#1.6 How many observations have a "LocationDescription" value of "Alley"?
+summary( mvt $ LocationDescription == "ALLEY")
+```
+
+> ## Understanding Dates in R
+
+#### In many datasets, like this one, you have a date field. Unfortunately, R does not automatically recognize entries that look like dates. We need to use a function in R to extract the date and time. Take a look at the first entry of Date (remember to use square brackets when looking at a certain entry of a variable).
+
+``` {r results = "markup"}
+#2.1 Whats the format of variable "DATE"
+# if we look at the summary of the dataset, it's in MM/DD/YY hr:min format.
+
+#2.2 What is the "month" & "year" of the median date in our dataset?
+
+  # To do this, 1st we have to convert "char" data type into a "Date" object in R.
+  # Then using our summary() view the median date in our dataset
+
+# [Syntax] : as.Date( strptime( R object, format, .. ))
+
+DateConvert <- as.Date(strptime(mvt$Date, "%m/%d/%y %H:%M"))
+
+summary(DateConvert)
+
+#2.3 In which "month"" did the fewest motor vehicle thefts occur?
+
+# To do the following, we take a three step approach:
+    #a. Extracting month
+    #b. Extracting day
+    #c. Replacing our old Date variable to DataConvert.
+
+mvt $ Month <- months(DateConvert)
+mvt $ Weekday <- weekdays(DateConvert)
+mvt $ Date <- DateConvert
+
+# Now using our table command, we are going to answer our question.
+which.min( table( mvt $ Month ) )
+mvt $ Month[4]
+
+#2.4 On which weekday did the most motor vehicle thefts occur?
+which.max( table( mvt $ Weekday) )
+mvt $ Weekday[1]
+
+#2.5 Which month has the largest numbre of motor vehicle thefts for which an arrest was made?
+which.max( table( mvt $ Arrest, mvt $ Arrest) )
+mvt $ Month[11]
+
+arrest <- subset(mvt, mvt$Arrest==T) 
+which.max(table(arrest$Month))
+```
+
+> ## Visulizing Crime Trends
+
+--- ---
+
+> #### __Histogram__
+
+#### Let's make some plots to understand how crime has changed over time in Chicago.
+
+``` {R}
+hist( mvt$Date, breaks = 100, xlab = "Date", main = "Crime Density vs Date")
+
+# Looking at the plot, answert the following questions, in general:
+  #1. Does the crime increases or decreases from 2002-12?
+  #2. Does the crime increases or decreases from 2005-08?
+  #3. Does the crime increases or decreases from 2009-11?
+```
+
+#### __Observation:__ Looking at the histogram we can fairly say the following:
+
+1. #### Crime decreases.
+
+2. #### Crime decreases.
+
+3. #### Crime increases.
+  
+--- ---
+
+> #### __Boxplot__
+
+#### Using a Boxplot, we try to answer the following:
+
+* ####  Create a boxplot of the variable "Date", sorted by the variable "Arrest".
+
+* #### Does it look like there were more crimes for which arrests were made in the first half of the time period or the second half of the time period? (Note that the time period is from 2001 to 2012, so the middle of the time period is the beginning of 2007.)
+
+``` {r}
+library(ggplot2)
+
+ggplot(mvt, aes(x=Arrest, y=Date)) + geom_boxplot()
+
+# Here's another way of doing this:
+  # boxplot( formula,data, color, x-axis <- label, y-axis <- label)
+  # Since we are asked to sort(group) Date with Arrest, this is our formula.
+  # data is your data frame i.e "mvt"
+
+boxplot( Date ~ Arrest, data <- mvt, xlab <- "Arrest", ylab <- "Date", main <- "Box plot of Arrest Dates", col = "green")
+```
+
+
+#### Let's investigate in further1
+
+####__[ Question ]__ : For what proportions of GTA iFilter was an arrest made?
+
+``` {r}
+tapply(mvt$Arrest,mvt$Year, mean)
+
+# for 2001
+# for 2007
+# for 2012
+```
+
+--- ---
+
+> ## Location of Heat
+
+--- ---
+
+#### Now we want to help chicago pd to mark locations where most theft has occured. By doing this we can provide decisions that will help Chicago pd to improvise there crime control measures.
+
+#### Problem: Find top five locations where motor vehicle theft occured.
+
+#### While we can simply throw in a summary function to get the statistical information, this could make the whole interpretation a bit messy. Fortunatly, R provide us with another function called as "sort()"
+
+#### Let's take it for a spin!
+
+``` {r}
+#4.1 Which locations are the top five locations for motor vechile theft, excluding the "other category".
+
+sort(table(mvt $ LocationDescription))
+```
+
+--- ---
+
+#### Now let's find top 5 locations of theft:
+ 
+ * #### We are going to use R "subset()" function.
+ 
+``` {r}
+#Problem 4.2
+lds <- mvt $ LocationDescription
+
+Top5 <- subset( mvt, lds == "GAS STATION" | lds == "ALLEY" | lds == "STREET" | lds == "PARKING LOT/GARAGE(NON.RESID.)" | lds == "DRIVEWAY - RESIDENTIAL", na.rm = TRUE)
+
+Top5 $ LocationDescription <- factor( Top5 $ LocationDescription )
+nrow( Top5 )
+ 
+```
+
+--- ---
+
+#### __Note__:
+
+* #### R will remember the other categories of the LocationDescription variable from the original dataset.
+
+* #### So running table(Top5$LocationDescription) will have a lot of unnecessary output.
+
+* ####To make our tables a bit nicer to read, we can refresh this variable by using factor().
+
+``` {r}
+#Problem 4.3
+# Use str to view top location where the arrest were made.
+table( Top5 $ Arrest, Top5 $ LocationDescription)
+#                     or
+tapply(Top5 $ Arrest, Top5 $ LocationDescription, mean)
+# if we look at the mean of all top 5 loactions,
+  # Location with highest mean --->  "Gas Station"
+
+#4.4 On which day of the week most of the arrest at gas station were made.
+day <- subset( Top5, Top5 $ LocationDescription == "GAS STATION")
+which.max(table(day $ Weekday))
+day $ Weekday[3]
+```
+
+#### **Note**: 
+* #### Don't get into the trap of the followed output : 3.
+* #### Always use the first output.
+
+--- ---
+
+
+
+### Stock Dynamics
+
+--- --- 
+
+> ## Outline
+
+#### A stock market is where buyers and sellers trade shares of a company, and is one of the most popular ways for individuals and companies to invest money. The size of the world stock market  is now estimated to be in the trillions. The largest stock market in the world is the New York Stock Exchange (NYSE), located in New York City. About 2,800 companies are listed on the NSYE. In this problem, we'll look at the monthly stock prices of five of these companies: IBM, General Electric (GE), Procter and Gamble, Coca Cola, and Boeing. The data used in this problem comes from Infochimps.
+
+![](C:\Users\pySag\Desktop\MITx15.071x\stock_market-dash.jpg)
+
+--- ---
+
+#### We will be analysis the monthly stock prices of five of the following companies:
+
+1. #### __IBM__.
+2. #### __GE( Genereal Electrics )__
+3. #### __P&G( Proctor & Gamble )__
+4. #### __CocaCola__
+5. #### __Boeing__
+
+--- ---
+
+> #### __Preliminaries__
+
+#### Let's load our data sets, and call the data frames respectively as:
+
+* #### "IBM"
+* #### "GE"
+* #### "ProcterGamble"
+* #### "CocaCola"
+* #### "Boeing"
+
+-- --
+
+#### Each data frame has "two" variables (rows), described as follows:
+
+
+1. #### __Date__ : the date of the stock price, always given as the first of the month.
+
+2. #### __StockPrice__ : the average stock price of the company in the given month.
+
+-- --
+
+#### In this problem, we'll take a look at how the stock dynamics of these companies have changed over time.
+
+-- --
+
+``` {r}
+# Objective:
+  # Loading the datasets.
+  # Creating desires data frames.
+getwd()
+IBM <- read.csv("C:/Users/pySag/Desktop/MITx15.071x/Datasets/IBMStock.csv")
+GE <- read.csv("C:/Users/pySag/Desktop/MITx15.071x/Datasets/GEStock.csv")
+ProcterGamble <- read.csv("C:/Users/pySag/Desktop/MITx15.071x/Datasets/ProcterGambleStock.csv")
+CocaCola <- read.csv("C:/Users/pySag/Desktop/MITx15.071x/Datasets/CocaColaStock.csv")
+Boeing <- read.csv("C:/Users/pySag/Desktop/MITx15.071x/Datasets/BoeingStock.csv")
+```
+
+-- --
+
+> ## __Problem 1__ - __Summary Statistics__
+
+-- --
+
+* #### Before working with these data sets, we need to convert the dates into a format that R can understand.
+
+* #### Take a look at the structure of one of the datasets using the str function.
+
+``` {r}
+str(IBM)
+```
+
+-- --
+
+* #### At present the "Date" variable is stored as a "factor".
+
+    * #### Although R can detect Date as factor, it can't use that variable.
+    
+* #### Hence, we will convert it into a suitable format that R can understand.
+
+    * #### We will make use of R date format converted function called "as.Date()".
+    
+    * #### It take an Object( in this case, a data frame ) & a fomat as it's argument.
+
+-- --
+
+``` {r}
+# To our data frame <- as.Date( object to be formated, "format" )
+
+IBM $ Date <- as.Date(IBM $ Date, "%m/%d/%y")
+
+GE $ Date <- as.Date(GE $ Date, "%m/%d/%y")
+
+CocaCola $ Date <- as.Date(CocaCola $ Date, "%m/%d/%y")
+
+ProcterGamble $ Date <- as.Date(ProcterGamble $ Date, "%m/%d/%y")
+
+Boeing $ Date = as.Date(Boeing $ Date, "%m/%d/%y")
+
+#(Question 1): How many obv. are there in each data set?
+str( IBM )
+str( GE )
+str( CocaCola )
+str( ProcterGamble )
+str( Boeing )
+
+# (1.2): What is the earliest year in our datasets?
+# (1.3) The last observations in our datasets will the latest years
+which.max( IBM $ Date )
+IBM $ Date[480] 
+GE $ Date[480]
+CocaCola $ Date[480]
+ProcterGamble $ Date[480]
+Boeing $ Date[480]
+
+# (1.4) What is the "Mean Stock Price" for IBM over these years?
+mean( IBM $ StockPrice )
+
+# (1.5) Which is the "Minimum Stock Price" for GE over these years?
+min( GE $ StockPrice )
+
+# (1.6) What is the "Maximum Stock Price" for Coca Cola over these years?
+max( CocaCola $ StockPrice )
+
+# (1.7) What is the "Median Stock Price" for Boeing over these years?
+median( Boeing $ StockPrice )
+
+# (1.8) What is the "Standard Deviation of the Stock Price" for P&G over these years?
+sd( ProcterGamble $ StockPrice )
+```
+
+-- --
+
+> ## __Problem 1__ __Visulaizing Stock Dynamics__
+
+
+#### Now let's visualize "Stock Trends" in "Stock Prices" over these period. Following are the steps we need to take:
+
+* #### Use Plot function of R.
+
+    * #### Plot "Date" on x axis & "stock Price" on y-axis.
+    
+    * #### Rather then histogram, we are using a line, just add-inn the argument "type = "l".
+    
+-- --
+
+``` {r}
+
+# (2.1) Visualize the CocCoala StockPrice vs Date using "line graph" 
+plot( x <- CocaCola $ Date, y <- CocaCola $ StockPrice, type = "l", xlab = "Date", ylab = "Stock Price" )
+title( main <- "Stock Dynamics: Coca COla")
+
+# Around what year did Coca-Cola has its "highest" stock price in this time period?
+        # 1973
+# Around what year did Coca-Cola has its "lowest" stock price in this time period?
+        # 1980
+
+# (2.2) Visualize P&G aswell.
+plot( CocaCola $ Date, CocaCola $ StockPrice, type = "l", col ="red", xlab = "Date", ylab = "Stock Price")
+
+# lets overlap the two:
+lines( ProcterGamble $ Date, ProcterGamble $ StockPrice, col = "dark green")
+
+# Lets add some titile
+title( main <- "Stock Dynamics: Coca Cola vs P&G")
+
+# (2.3) In March 2000, stock market crashed due to tach.bubble burst, acc. to plot which companies stocks plunged down?
+
+# To answer this, we will add a line separation 
+abline( v = as.Date( c( "2000-03-01", "1983-01-01")), lty=2)
+
+```
+
+-- --
+
+> ## __Problem 3__ : __Visualizing Stock Dynamics form 1995 - 2005__
+
+-- --
+
+#### To do the following, these steps are listed below:
+
+1. #### Plot the Coca Cola stock prices using obv. numbered from 301 to 432.
+
+2. #### Make the y-axis range from 0 to 210.
+
+3. #### Add the rest of the companies
+
+4. #### Discriminate them accordingly using colors.
+  
+-- --
+
+``` {r}
+# (3.1)
+plot(CocaCola$Date[301:432], CocaCola$StockPrice[301:432], type="l", col="red", ylim=c(0,210),lwd=2, xlab="Date", ylab="Stock Price")
+
+# Let's add the other four.
+lines(IBM$Date[301:432], IBM$StockPrice[301:432], type="l", col="blue", lwd=2, lty=5)
+lines(Boeing$Date[301:432], Boeing$StockPrice[301:432], type="l", col="green",lwd=2, lty=2)
+lines(ProcterGamble$Date[301:432], ProcterGamble$StockPrice[301:432], type="l", col="purple", lwd=2,lty=3)
+lines(GE$Date[301:432], GE$StockPrice[301:432], type="l", col="orange",lwd=2, lty=4)
+
+# Let's give it some title
+title( main = "Stock Dynamics Discrimination, year 1995-2010")
+
+#(3.2) Which stock fell the most right after the technology bubble burst in March 2000?
+abline(v=as.Date(c("2000-01-01")), lwd=2, lty=2)
+
+# (3.3) Which stock reaches the highest value in the time period 1995-2005?
+abline(v=as.Date(c("1995-01-01","2005-01-01")), lty=1, col="brown")
+
+# (3.4) In October of 1997, there was a global stock market crash that was caused by an economic crisis in Asia. Comparing September 1997 to November 1997, which companies saw a decreasing trend in their stock price? 
+abline(v=as.Date(c("1997-09-01","1997-11-01")), lty=2, col="cyan")
+```
+-- --
+
+> ##Problem 4 Monthly Trends
+
+#### Lastly, let's see if stocks tend to be higher or lower during certain months. Thus the question is as follows, Calculate the mean stock price of IBM, sorted my months. To do the following, steps are discussed down below:
+
+1. #### We will be using tpply()
+
+2. #### To sort the months, use months( IBM $ Date ).
+
+let's take it for a spin!
+
+``` {r}
+#(4.1) Comapre monthly average stock price of IBM to overall average stock price.
+
+# Here our monthly average stock prices for IBM.
+tapply(IBM $ StockPrice,months( IBM $ Date ), mean)
+
+# Here's our overall montly average stock prices for IBM.
+sort( tapply(IBM $ StockPrice, IBM $ Date, mean ), decreasing = TRUE )
+
+sort(tapply(GE$StockPrice, months(GE$Date), mean), decreasing = TRUE)
+sort(tapply(CocaCola$StockPrice, months(CocaCola$Date), mean), decreasing = TRUE)
+
+#(4.3) In whic month are the stock prices lower?
+which.min( tapply(GE $ StockPrice, months(GE $ Date), mean))
+```
+
+-- --
+
+### Demographics and Employment in US
+
+--- ---
+
+> ## Outline
+
+We are going to analyse "employment Statistics", this was discovered in the wake of great recession in 2009. It is used to gauge the overall strength of the economy.
+In US, the govt measures unemployment using the "Current Population Survey(CPS)".
+
+CPS collects demographic and employment information from a wide range of US citizens. each month.
+
+> ## Objective
+
+####  In this assignment we will use the former techniques of doing data basic summary stats aswell as some new one on a relativly fresh data set of Sept 2013.[dataset](http://thedataweb.rm.census.gov/ftp/cps_ftp.html)
+
+####  The Observations in the datssets represent people surveyed in the Sept 2013 CPS. While the full dataset has 385 variables, in this exercise we will use relativly compact version of dataset which has the following varibles:
+
+####  * __PeopleInHOusehold__: The number of people in the interviewee's household.
+
+####  * __Region__: The census region where the interviewee lives.
+
+####  * __State__: State: The state where the interviewee lives.
+
+####  * __MetroAreaCode__: A code that identifies the metropolitan area in which the interviewee lives (missing if the interviewee does not live in a metropolitan area). The mapping from codes to names of metropolitan areas is provided in the file.
+
+####  * __Age__: The age, in years, of the interviewee. 80 represents people aged 80-84, and 85 represents people aged 85 and higher.
+
+####  * __Married__: The marriage status of the interviewee.
+
+####  * __Sex__: The sex of the interviewee.The maximum level of education obtained by the interviewee.
+
+####  * __Education__: The maximum level of education obtained by the interviewee.
+
+####  * __Race__: The race of the interviewee.
+
+####  * __Hispanic__ : Whether the interviewee is of Hispanic ethnicity.
+
+####  * __CountryOfBirthCOde__: A code identifying the country of birth of the interviewee. The mapping from codes to names of countries is provided in the file
+
+####  * __Citzenship__: The United States citizenship status of the interviewee.
+
+####  * __EmploymentStatus__ : The status of employment of the interviewee.
+
+####  * __Industry__ : The Industry of employment of the interviewee( only available if they are employed )
+
+
+#### Let's get on to it!
+
+> #### __Problem 1.1__ - _Loading & Summarizing the Dataset_
+
+``` {r}
+CPS <- read.csv("C:/Users/pySag/Desktop/MITx15.071x/Datasets/CPSData.csv")
+
+#(1.1) How many Interviewees are in the dataset?
+str( CPS )
+summary( CPS )
+nrow( CPS )
+#Answer: 131302
+
+#(1.2) What is the most common indstry of employment?
+summary( CPS $ Industry )
+#Answer: Educational and health services
+
+#(1.3) Which state has the fewest interviewees?
+sort( which.min( table( CPS $ State ) ) )
+sort( which.max( table( CPS $ State ) ) )
+
+#(1.4) what proportion of interviewees ar "citizens of US"?
+# When say proporiton, we can find out using mean.
+# Also this particuler variable is neither logical, nor numeric, i.e its a factor.
+summary( CPS $ Citizenship )
+
+# From the summary, we are interested in "Citizen, Nativve Citizen, Naturalized"
+(116639 + 7073) / (116639 + 7073 + 7590)
+
+# (1.5) For which races are there at least 250 interviewees in the dataset with hispanic ethnicity
+hispanic <- subset( CPS, CPS $ Hispanic == T)
+table( hispanic $ Race )
+
+```
+
+-- --
+
+> ## __Problem 2.1__ : _Evaluating Missing Values_
+
+``` {r}
+# (2.1) Which variables have at least one interviewee with a missing (NA) value?
+# step 1 : view the summary stats of our dataset again.
+# Optional, step 2 : Use is.na() function offered by R check if the variables contain missing values or not.
+
+summary(CPS)
+# (2.2) To evaluate a new dataset, we are often interested in patterns in missing values.
+# TO find those patterns, we are going to use R's is.na() formerly discussed.
+table(CPS$Region, is.na(CPS$Married)) 
+table(CPS$Citizenship, is.na(CPS$Married)) 
+table(CPS$Age, is.na(CPS$Married)) 
+table(CPS$Sex, is.na(CPS$Married)) 
+
+#Answer: Look for values for True or False being 0. Age is found to be!
+
+# (2.3) How many states had all interviewees livining in non-metros, i.e
+#       They have a missin MetroAreaCode value.
+table( CPS $ State, is.na(CPS $ MetroAreaCode))
+
+# (2.4) Which region of the US has the largest proportion of interviewees,
+        # living in a non-metro area.
+
+table( CPS $ Region, is.na( CPS $ MetroAreaCode ) )
+
+# (2.5.1) Which State has a proportion of interviewees living in a non-meto area closest to 30%( i.e there means must be close to 0.30)
+        # use tapply() and pass mean as argument.
+sort(tapply(is.na(CPS$MetroAreaCode),CPS$State,mean), decreasing = TRUE)
+
+```
+
+-- --
+
+> ## __Problem 3 :__ _Inntegrating Metropolitan Area Data_
+
+-- --
+
+#### Codes like MetroAreaCode and CountryOfBirthCode are a compact way to encode factor variables with text as their possible values, and they are therefore quite common in survey datasets.
+
+#### In this dataset, we have one variable stored by numeric code!
+
+#### When analyzing a variable stored by a numeric code, following are some way to handle it:
+
+  * #### __We want to convert__ --> _values the code represent_.
+  
+  * #### To do this --> __use a dictionary__
+  
+      * #### Maps the code --> actual value of the variable.
+      
+  * #### We have two datasets "MetroAreaCode.csv" & "CountryCode.csv".
+    
+      * #### They respectivley map, the one to another.
+      
+-- --
+
+``` {r}
+# (3.1) Load the two datasets and answer the following:
+# How many observations( codes of Metro areas ) are there in MetroAreaMap?
+
+MetroAreaMap <- read.csv("C:/Users/pySag/Desktop/MITx15.071x/Datasets/MetroAreaCodes.csv")
+CountryMap <- read.csv("C:/Users/pySag/Desktop/MITx15.071x/Datasets/CountryCodes.csv")
+
+str(MetroAreaMap)
+str(CountryMap)
+
+#(3.2) Integrating Metropolitan Area Data
+```
+
+-- --
+
+#### To Merge in the metro areas, we want to connect the field "MetroAreaCode" for CPS dataframe, with the field "Code" in it. The following command merges the two dataframes on these coloumns, it does it so ny overwriting the CPS data frame with the results.
+    
+  * #### __CPS <- merge( CPS, MetroAreaMap, by.x <- "MetroAreaCode", by.y <- "Code", all.x <- TRUE )
+  
+      * #### __The 1st two arguments__, _determine the data frame to be merged._
+      
+      * #### They are called 'x' & 'y', resp. in the subsequent parameters in the merge function.
+      
+      * #### __by.x="MetroAreaCode"__ --> we're _matching on the MetroAreaCode variable from the "x" data frame (CPS)_.
+      
+      * #### __by.y="Code"__ --> we're _matching on the Code variable from the "y" data frame (MetroAreaMap)._
+      
+      * #### This parameter makes the operation --> a __left outer join__ instead of an __inner join__.
+      
+      * #### __all.x = TRUE__ removes all missing values from the data frame.
+      
+``` {r}
+# (3.2) Apply the code an answer the following questions.
+summary(CPS)
+CPS <- merge( CPS, MetroAreaMap, by.x = "MetroAreaCode", by.y = "Code", all.x = TRUE )
+
+#note: some code works with the usual assignment syntax "=".
+
+# What is the name of the variabble that was added to the data frame by the merge() operation?
+summary(CPS)
+
+# (3.3) Which of the following metropolitan areas has the largest number of the interviewees?
+
+summary(CPS $ MetroArea)
+sort( table(CPS $ MetroArea), decreasing = TRUE )
+
+# (3.4) Which metro area has the largest proportion of interviewees of Hispanic enthinicity.
+
+sort( tapply(CPS $ Hispanic, CPS $ MetroArea, mean ), decreasing = TRUE )
+
+# ( 3.5 ) Determine the number of metro areas in the US from which "at least 20%" interviewees are "Asian"?
+
+asian <- sort( tapply(CPS $ Race == "Asian", CPS $ MetroArea, mean ), decreasing = TRUE )
+asian
+asian[ asian >= 0.2 ]
+
+# (3.6 ) Determine which metropolitan area has the smallest proportin of intervieewees who have received no high school diploma?
+NoHighDiploma <- sort( tapply(CPS $ Education == "No high school diploma", CPS $ MetroArea, mean, na.rm = TRUE))
+
+which.min( NoHighDiploma )
+```
+
+-- --
+
+> ## __Problem 4 :__ _Integrating Country of Birth Data_
+
+* #### Merge in the country of birth information from the CountryMap data frame, replacing the CPS data frame with the result.
+
+h4 __Note__ : If we accidentally overwrite CPS with the wrong values, we can restore it by re-loading the data frame for CPSData.csv. Then simply merge using the previous command.
+
+
+``` {r}
+# (4.1) What is the name of the variable added to the CPS data frame by this merge operation?
+
+# First lets merge our data frame "CountryMap" to our CPS data frame.
+summary(CPS)
+CPS <- merge( CPS, CountryMap, by.x = "CountryOfBirthCode", by.y = "Code", all.x = TRUE )
+table(is.na(CPS $ Country))
+
+table( CPS $ Country )
+
+
+#(4.2) Among all interviewees born outside of North America, which country was the most common place of birth?
+summary(CPS)
+sort( table(CPS $ Country), decreasing = TRUE )[1 : 3]
+
+
+#(4.3) What proportion of the interviewees from the "New York-Northern New Jersey-Long Island, NY-NJ-PA" metropolitan area have a country of birth that is not the United States?
+
+# Note: don't include people from this metropolitan area who have a missing country of birth.
+    
+    #i.e apply na.rm = TRUE
+summary(CPS)
+table( CPS $ MetroArea == "New York-Northern New Jersey-Long Island, NY-NJ-PA", CPS $ Country.x, na.rm = TRUE)
+
+
+# (4.4) Which metropolitan area has the largest number (note -- not proportion) of interviewees with a country of birth in India? Hint -- remember to include na.rm=TRUE if you are using tapply() to answer this question.
+sort( tapply( CPS $ Country.y == "India", CPS $ MetroArea, sum, na.rm = TRUE) )
+sort( tapply( CPS $ Country.y == "Brazil", CPS $ MetroArea, sum, na.rm = TRUE) )
+sort( tapply( CPS $ Country.y == "Somalia", CPS $ MetroArea, sum, na.rm = TRUE) )
+
+```
+--- ---
+
+### Internet Privacy Poll
+
+--- ---
+
+> ## OUtline
+
+--- ---

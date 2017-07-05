@@ -1,0 +1,1069 @@
+---
+title: "MITx15.071x-U2"
+author: "Rahul Yadav"
+date: "April 15, 2016"
+output: 
+  html_document:
+    theme: cosmo
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = "C:/Users/pySag/Desktop/MITx15.071x")
+```
+
+
+![](C:\Users\pySag\OneDrive\Pictures\Camera Roll\cuteBanner.jpg)
+
+## {.tabset .tabset-fade .tabset-pills}
+
+--- ---
+
+### Linear Regression
+
+``` {r}
+# Read in data
+wine = read.csv("C:/Users/pySag/Desktop/MITx15.071x/Datasets/wine.csv")
+str(wine)
+
+# 1. Year gives the year the wine was produced, a unique identifier for each observation.
+
+# 2. Price ---> Dependent variable we are trying to predict.
+
+# 3. Independent variables := WinterRain, AGST, HarvestRain, Age & FrancePop.
+    # 3.1 We'll use this to predict the price.
+# Linear Regression (one variable)
+
+summary(wine)
+
+# The below code create one variable Linear Regression equation.
+    # Using AGST as our one independent variable to predict price.
+
+    # We will use lm() offered by R, lm - stands for "linear model".
+
+    # This is the real deal to create linear regression models.
+
+    # 1st argument : formula,
+
+          # 2nd  argument : data frame, in this case, it our "wine data frame"
+
+model1 = lm(Price ~ AGST, data=wine)
+summary(model1)
+
+# Let's break it down :
+
+      # call : is a description of our model       # Residuals ~ Errors 
+      # Description of the coefficient of our model.
+            # 1st row : Intercept terms.
+            # 2nd row : Independent variable, AGST we passed in to our linear model.
+
+            # 1st col : Estimate, gives estimates of the "Beta" value of our model.
+
+                  # More spcifically, "(Beta not, or Beta 0), the coefficient of "intercept term".
+                  # Beta0 := -3.4
+
+                  # Beta1 := 0.635 ; The Coefficient of our independent variable (AGST). 
+            
+      # 3rd last output is the thing we are interested in.
+
+            # "Residual Std.error := 0.4993 with 23 d.o.f( degree of freedom).
+
+      # 2nd last output : Multiple R-squared := 0.435.
+
+            # & Adjusted R-squared := 0.4105
+
+                 # This adjusts R-squared value : Account for the number of independent variables used 'relative' to the no. of data.
+
+            # [Note1] : Multiple R-squared will always increase, if we add more indep.var, and vice-versa for Adjusted R-squared "that's of no use to the model".
+
+            # [Note2] : This is a good way to determine if an additional variale is cared to be included into the model or not.
+
+            
+# ( Sum of Squared Errors )
+# Our residuals( errors ) := vector "model1"
+
+model1 $ residuals
+SSE = sum(model1$residuals^2)
+SSE
+
+# Linear Regression (two variables)
+    # To add another independent variable, use "+" sign followed by the desired     indep.variable of your choice.
+
+model2 = lm(Price ~ AGST + HarvestRain, data=wine)
+summary(model2)
+
+# Interpretation of our model:
+      
+      # (New) 3rd row : "HarvestRain" is added to our model.
+          # Coefficient estimates := -0.00457
+
+      # Lastly, "Multiple R-squared" & "Adjusted R-squared" has improved.
+          # This means adding new indep.var has helped our model.
+          
+      # (Conclusion) : New model is "better" then our Previous model.
+
+# Sum of Squared Errors
+SSE = sum(model2 $ residuals^2)
+SSE
+
+# (inference):
+    # (New) SSE is a improved version of our (Old) SSE.
+
+#=============================================================#
+
+# Linear Regression (all variables)
+model3 = lm(Price ~ AGST + HarvestRain + WinterRain + Age + FrancePop, data=wine)
+summary(model3)
+
+# (inference):
+    # We've got 3 new rows, with 3 new independent variables.
+
+    # Our Residual Std error has slightly decreased from our former model.
+
+    # Multiple R-squared & Adjusted R-squared has increased, courtesy of new variables that are being added recently to our new model.
+
+# Sum of Squared Errors
+SSE = sum(model3$residuals^2)
+SSE
+
+# (inference) :
+
+    # Our SSE has improved sig.fig then our previous model!
+
+#[Quiz]: Create a linear regression model to predict the Price using "HarvestRain" & "WinterRain" as indep.var, and answer the following questions:
+
+model4 <- lm( Price ~ HarvestRain + WinterRain, data <- wine)
+summary(model4)
+
+#==================
+
+# Video 5 : Understanding the model and Coefficient
+
+
+#1st Colomn: ( The Estimate )
+  
+#        - Gives the Coefficient for --> Intercepts, & for each of the indep.var in our model.
+
+#        - A Coefficient of 0 --> No change to model.
+
+#        - If its not --> remove the var. from our model.
+#              - Since they are non-contributing to the performance of our model.
+
+# 2nd Colomn: ( The Standard Error )
+
+#      - Measures --> How much the coefficient is likely to vary from the estimate.
+
+# 3rd Colomn: ( The t-value )
+
+#        - Measure --> Estimate / Std.error
+    
+#        - -ive, if estimate is -ive or vice-versa.
+
+#        - Larger its |t-value|, More likely is the coefficient --> Sig.fig.
+
+#        - Thus we want indep.var with > |t-value|, in this coloumn.
+
+# 4th colomn: Pr( > |t| )
+
+#        - Measure --> How plausible --> Coefficient is == 0, given the data.
+
+#        - The < it is, the < likely is our Coefficient estimate == 0.
+
+#        - This no. is >, if |t-value| is < & vice-versa.
+
+#        - We want indep.var with < value in this coloumn.
+
+
+# [Note] : The easiest way to determine if a var. is sig.fig is to look at the folowwing at the end of each row :-
+
+#        - ***         :   Highest level of sig.fig, p-value < 0.001
+
+#       - **          :   Very Sig.fig, p-value b/w 0.001 & 0.01
+      
+#        - *           :   Sig.fig, p-value b/w 0.01 & 0.05.
+
+#        - A dot(.)    :   Almost sig.fig, p-value b/w 0.05 & 0.10. 
+
+# If we look our Coefficient table, Age & FrancePopulation are both in.sig.fig.
+ 
+
+# Let's remove Age & FrancePopulation from our model.
+
+model5 <- lm(Price ~ AGST + HarvestRain + WinterRain + Age, data <- wine)
+
+summary(model5)
+
+# Adjusted R squared is slightly improved.
+# Interestingly, Age which was in.sig.fig earlier is now oddly become sig.fig.
+  # Why is it so?
+
+  # Answer: It's due to multicollinearity i.e Age & FrancePopulation are highley correlated.
+
+# To check our assumption, let's build another model and test this claim.
+summary(wine)
+model6 <- lm(Price ~ AGST + HarvestRain + WinterRain + FrancePop, data <- wine)
+summary(model6)
+
+# It look like our claim is true.
+```
+
+> ## Corellation & Mulitcollinearity
+
+#### Corellation is a measure of th linear relationship b/w variables.
+#### Whereas, Mulitcolliniearity --> two indep.var are highley corellated.
+    
+* #### +1 := perfect positive linear Relationship.
+
+* #### 0 := No linear relationship.
+
+* #### -1 := perfect negative linear realtionship.
+
+``` {r}
+cor( wine $ WinterRain, wine $ Price )
+
+cor( wine $ Age, wine $ FrancePop )
+
+cor( wine )
+
+model7 <- lm( formula <- Price ~ AGST + HarvestRain + WinterRain, data <- wine )
+summary(model7)
+```
+
+#### __Inference__ :
+
+* #### It turns out that our model looks pretty much the same, except one thing!
+
+    * #### Our R-squared dropped down to 0.75 vs the model consisting of Age with 0.83.
+    
+* #### Question is should we keep Age or FrancePop?
+
+    * #### Removing Age & FrancePop at the same time has caused us to miss out a sig.fig variable.
+    
+    * #### Also, our R-squared value is lowered.
+    
+#### __Conclusion:__ It turns out that it's better to keep Age rather than FrancPop has intitutivly "Older wines our typically more expensive", thus Age makes more sense
+
+#### Typically, a corellation > 0.7 or < than -0.7 is cause for concern.
+
+-- --
+
+> ## Making Predictions
+
+#### Our wine model is quite good in predicting "Prices" of wine on the data it's seen. But How well does it perform on "new data"?
+
+* ##### For starters Our wine model had a value of R^2 := 0.83
+
+* ##### Wine buyers profit from being able to predict the quality of wine years before it matures.
+
+* #### The data that we used to build a model --> training data.
+
+* #### The new data --> test data.
+
+* #### Accuracy of the model on the test data is --> out-of-sample accuracy.
+
+#### Let's jump in!
+
+``` {r}
+# We have to data points that we haven't used to build our model.
+# These are contained in file : "wine_test.csv".
+
+wineTest <- read.csv("C:/Users/pySag/Desktop/MITx15.071x/Datasets/wine_test.csv")
+str(wineTest)
+summary(wineTest)
+
+# To make a predictions for these two test poing, R offers the "predict()"
+# We are going to be using our prevvious model no. 5
+predictTest <- predict(model5, newdata <- wineTest)
+
+predictTest
+```  
+-- --
+#### __Inference__ : Let's understand what our output is trying to convey info.
+
+* #### Prediction price values --> closely matches to price values of test data.
+
+* #### But we can quantify this by computing the R-squared value for our test set.
+
+* #### Forumuala for R-squared is 1 - SSE / SST
+
+``` {r}
+SSE <- sum( ( wineTest $ Price - predictTest ) ^ 2)
+SST <- sum( ( wineTest $ Price - mean ( wine $ Price ) ) ^ 2)
+
+# R ^ 2
+1 - SSE / SST
+
+# Are we done? is that best we can do ?
+    # It turns out that out test data is very small, if we want a good "out-of-sample" accuracy in our prediction.
+```
+
+-- --
+
+#### __Out-of-Sample R^2__
+
+* #### Model R-squared increases as we add up more independent variables.
+* #### However for Test R-squared , its not True.
+* #### Further, we need more data to be conclusive enough.
+* #### Out-of-sample R-squared can be -ive.
+
+
+
+--- ---
+
+
+### Sports Analytics
+
+> ## __Moneyball__
+
+
+#### In this R session, we are going to make use of power of modeling & how can we make use of it to provide decisions in a Baseball games that the Okland A's key decision makers did too to make through playoffs.
+
+![](C:\Users\pySag\Downloads\images\Red_Sox_Yankees_Game_Boston_July_2012.jpg)
+
+
+-- --
+
+> ## __The Story of Moneyball__
+
+![](C:\Users\pySag\Desktop\MITx15.071x\storyMoneyball.JPG)
+
+![](C:\Users\pySag\Desktop\MITx15.071x\problemMoneyball.JPG)
+
+#### Here are some observations from the above scatterplot:
+
+  * #### blue dot -->  Team : N.Yankees, Avg.wins := 97, Avg.annual.sal := $ 90M.
+    
+  * #### red dot --> Team : R.Soks, Avg.wins := 90(appx.), Avg.annual.sal := $ 80M.
+    
+  * #### green dot --> Team : Oak.A's, Avg.wins := 90(appx), Avg.year.sal := $ 30M.
+    
+#### _Oak.A's were doing it cost-effectivly if not better than "all-star teams"._
+
+-- --
+
+> ## __Competing as a Poor Team__
+
+-- --
+
+#### Given that Oak.A's were a poor team & can't afford "the all-stars", _but they are still making it to the plaoffs._ __The question was How?__
+
+  * #### Apparently they took a quantitative approach rather than intitutive, emotional & physical!
+    
+  * #### There key policies were as follows:
+    
+        * #### Finding undervalued players through each player's indiv. statistics.
+        
+        * #### If they do, find players at a bargain.
+        
+        * #### Make them to play and hope they played well, to make it to playoffs.
+
+
+  * #### _Thus, Creating a team with a good albiet surprisingly mixed performance players_.
+
+> ## __Comedy of Errors__
+
+![](C:\Users\pySag\Desktop\MITx15.071x\comedyMoneyball.JPG)
+
+![](C:\Users\pySag\Desktop\MITx15.071x\perfectPitcherMoneyball.JPG)
+
+![](C:\Users\pySag\Desktop\MITx15.071x\billyBeanMoneyball.JPG)
+
+![](C:\Users\pySag\Desktop\MITx15.071x\statisticianPaul.JPG)
+
+-- --
+
+> ## __Making to the playoffs__
+
+-- --
+
+#### Let's see how a baseball team make it to the playoffs:
+
+  * #### First, __Use Analytics__.
+  
+  * #### Second, Predict which team will make it to playoffs.
+      
+      * #### How? By knowing how many games they won in the 1st regular season.
+      
+      * #### Using the difference b/w "Runs Scored" & "Opponent Runs".
+  
+  * #### Third, Building a Linear Regression model to predict the former case.
+  
+
+![](C:\Users\pySag\Desktop\MITx15.071x\goalTeamMoneyball.JPG)
+
+#### __"Essentially, Paul Reduced the regular season to a math problem"__.
+
+  * #### He judged, making to playoffs --> 95 games to be won!
+
+-- --
+
+> ## __Validating the claim__: Winning 95 Games
+
+-- --
+
+#### Let's see if we can verify this using data visulization.
+
+![](C:\Users\pySag\Desktop\MITx15.071x\datavizMoneyball.JPG)
+
+
+#### Further, to figure this out, we need to answer the following questions:
+
+* #### How does a team win games?
+    
+  * #### Score > Opponent.
+  
+* #### But question is, __How many more__?
+
+#### __"Turns out A's calculated that they required to score 135 or more."__
+
+#### _Let's validate using the data in R!_
+
+```{r}
+# Load the dataset.
+baseball <- read.csv("C:/Users/pySag/Desktop/MITx15.071x/Datasets/baseball.csv")
+
+# Structure
+str(baseball)
+
+# A bit about the dataset:
+  
+  # Observations of every team and year pair from 1962 - 2012
+  # For all seasons with 162 games.
+  # 15 variables, including:
+
+      # RA : Runs Scored.
+      # RA : Runs Allowed.
+      # W : No. of Winds.
+
+  # & several more, but for this session these would suffice.
+
+# Subsetting our data to year 2002, the data Paul used.
+moneyball <- subset( baseball, Year < 2002)
+str(moneyball)
+
+# Calculating the difference
+moneyball $ RD <- ( moneyball $ RS - moneyball $ RA )
+str(moneyball)
+
+# Visualization
+plot( moneyball $ RD, moneyball $ W, xlab = "Run difference", ylab = "No. of Wins")
+title("RD vs Wins")
+
+# Linear Regression Model
+WinsReg <- lm( W ~ RD, data = moneyball )
+summary(WinsReg)
+
+```
+-- --
+
+#### __[ Inference ]__:
+#### Here are the following observations:
+
+  * #### Both variables "RD" & "W" show high correlation.
+  
+  * #### They are both highley sig.fig.
+  
+  * #### This is pretty strong model.
+
+-- --
+
+#### __[ Mathematically ]__:
+
+  * #### W := 80.881375 + 0.105766 x ( RD )
+  
+  * #### To win we need, W >= 95
+  
+  * #### If we rearrange the terms, 80.881375 + 0.105766 x (RD) >= 95
+  
+  * #### And finally, claim of runs >= 135 is satifyed by above equation.
+  
+      * #### RD >= 95 - 80.881375 / 0.105766 == 133.5, thus almost ~ 135.
+
+-- --
+
+> #### __Predicting Runs__
+
+Now we need to know "How many runs a team will score", which can be predicted with batting statistics & "How many runs a team will allow", which can be predicted with fielding-pitching statistics.
+
+1. #### __Scoring Runs__.
+
+  * #### How does a team score more runs?
+  
+  * #### The Oak.A's discovered that two baseball statistics were sig.fig predictive of runs scored.
+  
+  * #### _On-base percentage (OBP)_ : percentage of time a player get on base.
+  
+  * #### _Slugging Pecentage (SLG)_ : How far a player gets around the base on his turn.( measures power )
+  
+  * #### _Batting Avearage (BA)_ : Most team focus on this.
+  
+2. #### __Most important statistics__:
+
+  * #### OBP with sig.fig level of 3 stars.
+  
+  * #### SLG with 2 level of sig.fig.
+  
+  * #### BA with least sig.fig
+  
+#### *** Question is, can we use all this info in our linear model to verify which baseball stats are more important to predict runs?***
+
+``` {r}
+str(moneyball)
+RunsReg <- lm( RS ~ OBP + SLG + BA, data = moneyball)
+summary(RunsReg)
+
+```
+
+3. #### __Inference__
+
+  * #### All indep.var are sig.fig
+  
+  * #### R-squared := 0.9302
+  
+  * #### Coefficient for BA is -ive
+  
+      * #### This implies, all else being equal, a team with < BA will score more.
+  
+      * #### The above observation is a little counterintitutive, What's happening?
+  
+  * #### This is a case of Multicollinearity, each indep.var is highley correlated.
+  
+      * #### Thus its hard to interpret coefficient of our model.
+      
+  * #### Thus removing BA from our model may help.
+  
+``` {r}
+RunsReg <- lm( RS ~ OBP + SLG, data = moneyball)
+summary(RunsReg)
+```
+
+4. #### __New Inference__
+
+  * #### All indep.var are sig.fig
+  
+  * #### R-squared := 0.9296, which is ~ 0.9302
+  
+  * #### Only change that we can observe is, Coeff are now +ive.
+  
+  * #### This has sig.fig improved our model, it's much more simpler and powerful.
+  
+ -- --
+ 
+ > ## _Conclusion__
+ 
+ #### *** We were able to verify the claims made in Moneyball**
+ 
+ * #### That the BA is overvalued.
+ 
+ * #### While OBP is the most improtant statistics, followed by SLG.
+ 
+ * #### And that allowing runs :
+ 
+    * #### OOBP ( Opponent On-Base Percentage )
+    
+    * #### OOSP ( " " " Slugging Percentage )
+    
+``` {r}
+summary(moneyball)
+RunsAll <- lm( RA ~ OOBP + OSLG, data = moneyball )
+summary(RunsAll)
+```
+
+ * #### We get Linear Regression model:
+    
+    * #### RA := -837.38 + 2913.60( OOBP ) + 1514.29( OSLG )
+    
+ * #### R-squared := 0.91   
+ 
+ * Both variable are sig.fig.
+    
+ #### __Key__ : ***Simple models using only a couple of independent variables can be constructed to answer some of the most important questions in sports***
+ 
+> ## __Using the Models to Make Predictions__
+
+-- --
+
+* #### Can We Predict how many games the 2002 Oak.A's gonna win using our model?
+* #### The models for runs use team statistics.
+* #### Each year a baseball team is different.
+
+  * #### But we can estimate the new team statistis usng past player performance.
+  * #### Assumes past performance correlates with the future performance.
+  * #### We can estimate the team statistics for 2002 using the 2002 player stats.
+  
+-- --
+
+#### __[ Predicting Runs Scored ]__:
+
+  * #### At the beginning of the 2002 season, the Oak.A's had 24 batters.
+  
+  * #### Using the 2001 regular sesons stats for these players
+  
+      * #### _Team OBP := 0.339_
+    
+      * #### _Team SLG := 0.430_ 
+    
+  * Our Regression equation was:
+  
+      * #### __RS := -804.63 + 2737.77( OBP ) + 1584.91( SLG )__
+      
+      * #### All we have to do is substitute the values:
+      
+      * #### __RS := -804.63 + 2737.77( 0.339 ) + 1584.91( 0.430 ) = 805__
+      
+-- --
+
+
+#### __[ Predicting Wins ]__
+
+  * #### OUr regression equatin to predict wins was:
+  
+      * #### __Wins := 80.8814 + 0.1058( RS - LA )__
+      
+  * #### We pedicted
+  
+      * __RS := 805__
+      
+      * __RA := 622__
+      
+      
+  * So our prediction for wins is:
+      
+      * #### __Wins := 80.8814 + 0.1058( 805 - 622 )__
+      
+      * #### __:= 100__
+      
+  
+  * #### Paul DePodesta used a similar approach to make predictions.
+  
+  * #### __Prediction closely match actual performance__
+  
+####   |           | Our Prediction | Paul's Prediction | Actual
+####  -------------------------------------------------------------
+
+#### Runs Scored: | 805 | 800 - 820 | 800
+
+#### Runs Allowed | 622 | 650 - 670 | 653
+
+#### Wins | 100 | 93 - 97 | 103 
+
+
+-- --
+
+#### __[ Luck in the Playoffs ]__
+
+#### Billy & Paul see their jobs as making sure the team makes it to playoffs.
+
+  * #### Oak.A's made it to playoffs in 2000, 2001, 2002, 2003
+  
+  * #### They didn't win the World series!
+  
+  * #### Why?
+  
+      * #### It turns out there further analysis was plagued with a statistical phenomena called as "Sample Size problem".
+      
+      
+#### __[ Is Playoff Performance Predictable? ]__
+
+* #### Using data 1994-2011 ( 8 teams in the playoffs ).
+
+* #### We shall use these 8 teams.
+
+* #### Correlation b/w winning the World Series & regular season wins is 0.03.
+
+    * #### The correlation is very low.
+  
+    * #### So Winning regular season games gets you to the playoffs.
+    
+* #### __Logistic Regression can be used to predicted whether or not a team will win the world series__
+  
+#### Quick Question : finding correlations
+
+``` {r}
+# Create vectors
+teamRank <- c( 1,2,3,3,4,4,4,4,5,5 )
+wins2012 <- c(94, 88, 95, 88, 93, 94, 98, 97, 93, 94)
+wins2013 <- c(97, 97, 92, 93, 92, 96, 94, 96, 92, 90)
+
+# Combine them into a single dataframe
+df1 <- data.frame( teamRank, wins2012 )
+df2 <- data.frame( teamRank, wins2013 )
+
+# Compute the Carl.Pearson coefficient
+cor( df1, use = "complete.obs", method = "pearson")
+cor( df2, use = "complete.obs", method = "pearson" )
+```
+
+
+-- --
+
+### Recitation 2
+
+-- --
+
+``` {r}
+# Loading our data set
+NBA <- read.csv("C:/Users/pySag/Desktop/MITx15.071x/Datasets/NBA_train.csv")
+
+# Structure of our dataset
+str(NBA)
+
+# Summary of our dataset
+summary(NBA)
+```
+
+#### __How many games does a team needs to win to make it to the playoffs?__
+-- -- 
+  
+``` {r}
+# Using the table command
+table( NBA $ W, NBA $ Playoffs )
+
+# Interpreting the results:
+  
+  # W | False | True
+  
+  # If a team tries to win 42 games := will make it to playoffs
+
+
+# Predicting the no. of game a team will win.
+
+    # For this, we will use the difference of "points scored" & "points allowed"
+
+NBA $ ptdf <- ( NBA $ PTS - NBA $ oppPTS )
+
+plot( NBA $ W, NBA $ ptdf, xlab = "No of Wins", ylab = "Points difference", col = "red")
+title( main = "Scatter Plot: Wins vs Total Point Difference")
+
+# Verification
+WinsReg <- lm( W ~ ptdf, data = NBA)
+summary(WinsReg)
+
+# Regression Equation, W := 41 + 0.03259 * ptdfs
+# To win, need 42 wins, what does it mean in terms of ptdfs?
+# It would mean: ptdfs := (42 - 41 ) / 0.03259
+# := 31, which means we need 31 more points to win 42 games!
+```
+
+
+> ## Predicting points scored
+
+-- --
+
+#### In order to do so:
+
+  * #### Dependent Variable will be __PTS__.
+  
+  * #### Indpe.variables will be, __all variables except PTS__
+  
+#### Let's Build our model!
+
+``` {R}
+PTSreg <- lm( PTS ~ X2PA + X3PA + FTA + AST + ORB + DRB + TOV + STL + BLK, data = NBA)
+summary(PTSreg)
+
+# Let's compute the residuals
+table( PTSreg $ residuals ) [1:10]
+
+SSE <- sum( PTSreg $ residuals ^ 2) 
+SSE
+RMSE <- sqrt( SSE / nrow(NBA))
+RMSE
+
+# Inference:
+      
+    # Both "SSE" & "RMSE" is quite high
+    # But off by 184 is less sig.fig and not so bad.
+
+# if we look at the average total no of points in a season.
+mean( NBA $ PTS )
+
+```
+
+> ## Improving our Model
+
+-- --
+
+#### Let's remove some of the indep.vars from our linear regression model to check if we still can improve this model by a fraction.
+
+#### We will be removing these independent variables one at a time.
+
+#### Which indep.var to remove first depends on its __p value__.
+
+  * #### if its high, it means its least statistically sig.fig
+
+``` {r}
+summary(PTSreg)
+
+# removing TOV
+PTSreg2 <- lm( PTS ~ X2PA + X3PA + FTA + AST + ORB + DRB + STL + BLK, data = NBA)
+
+summary(PTSreg2)
+
+# removing DRB
+PTSreg3 <- lm( PTS ~ X2PA + X3PA + FTA + AST + ORB + STL + BLK, data = NBA)
+
+summary( PTSreg3 )
+
+# removing BLK
+PTSreg4 <- lm( PTS ~ X2PA + X3PA + FTA + AST + ORB + DRB + STL, data = NBA)
+summary( PTSreg4)
+
+# SSE
+SSE4 <- sum( PTSreg $ residuals ^ 2 )
+SSE4
+RMSE <- sqrt( SSE4 / nrow(NBA) )
+RMSE
+```
+
+> ## Predicting 2012-2013 season
+
+#### For this, we will be requring our training set __"NBA_test"__.
+
+``` {r}
+# Load the training set
+NBAtest <- read.csv("C:/Users/pySag/Desktop/MITx15.071x/Datasets/NBA_test.csv")
+
+pointsPrediction <- predict( PTSreg4, newdata = NBAtest)
+
+# How good our prediction?
+# We can compute "Out-of-sample R-squared"
+
+    # This is the measure of "How well the model predicts on test data"
+
+# Recall, our "In-sample R-squared" := 0.8991
+  
+    # measure --> "How well the model fits the training data"
+
+# SSE := sum( prediction data - original data )
+SSE <- sum( ( pointsPrediction - NBAtest $ PTS) ^ 2 )
+SSE
+
+# SST
+SST <- sum( ( mean( NBA $ PTS ) - NBAtest $ PTS ) ^ 2 )
+R2 <- 1 - SSE / SST
+R2
+
+RMSE <- sqrt( SSE / nrow(NBAtest) )
+RMSE
+```
+--- ---
+
+### Assignment 2
+
+> ## CLIMATE CHANGE
+
+In this problem, we will attempt to study the relationship b/w average global temperature and several other factors.
+
+#### The file climate_change.csv contains data from May 1983 to Dec 2008. The avilable variables include:
+
+
+* #### The Observation year.
+
+* #### The observation month.
+
+* #### Temp
+
+* #### 
+
+#### __Creating our First Model__
+
+``` {r}
+# loading our dataset
+GBtemp <- read.csv("C:/Users/pySag/Desktop/MITx15.071x/Datasets/climate_change.csv")
+
+# str of our dataset
+str(GBtemp)
+
+# summary our dataset
+summary(GBtemp)
+
+# subset our dataset into two:
+
+    # 1. A training set.
+
+    # 2. A test set.
+
+GBtemp_Training <- subset(GBtemp, Year < 2007 ) # training set
+
+GBtemp.Test <- subset(GBtemp, Year > 2006 ) # test set
+
+# Building our linear regression model
+tempModel1 <- lm( Temp ~ . -Year -Month, data = GBtemp_Training )
+
+summary(tempModel1)
+
+# (1.2) Which variables are significant in the model? We will consider a variable signficant only if the p-value is below 0.05 ?
+
+# MEI, CO2, CFC.11, CFC.12, TSI, Aerosols
+
+```
+
+> ## Understanding the model
+
+``` {r}
+
+# (2.1) We can find if there is a correlation between N2O & CFC11
+# let's create a new data frame.
+
+df3 <- data.frame( GBtemp_Training $ N2O, GBtemp_Training $ CFC.11 )
+str(df3)
+
+# if they are highley correlated then we can accept the initial hypothesis.
+# Null Hypothesis : A -ive coefficient value of both varibales indicates lowering of temperature.
+# Alt.Hypothesis : These two variables don't contribute to lowering temperatrue, i.e correlation b/w these two is sig.fig less. ( And that there's no sufficient amount of data in favor of this claim )
+
+cor(df3, use = "complete.obs", method = "pearson")
+
+# Inference : Accept our Null Hypothesis
+
+# (2.2) Compute the correlation b/w all the variables in the training set.
+# Which of the following independent variable is N2O higley correlated.
+
+    # Absoloute correlation > 0.7
+
+temp1 <- data.frame( GBtemp_Training )
+temp2 <- data.frame( GBtemp_Training $ N2O )
+
+
+temp3 <- data.frame( temp1, temp2 )
+cor( temp3, use = "complete.obs", method = "pearson")
+
+```
+
+> ## __3. Simplifying the model__
+
+#### Given that the correlations are so high, let us focus on the N2O variable and build a model with only MEI, TSI, Aerosols and N2O as independent variables.
+
+``` {r}
+# Problem 3
+# For this we going to be using our "training set" to build our model
+newModel <- lm( Temp ~ MEI + TSI + Aerosols + N2O, data = GBtemp_Training )
+summary(newModel)
+
+```
+
+> ## __4. Automatically Building the Model__
+
+#### Our previous was no good, and dropping combination of variables from our model is a tidy task, hence following are some methods to ease out this process:
+
+  * #### R provides a function __step__, that will automate this tidy process.
+  
+  * #### __step__ also take cares of Multiple R-squared.
+  
+  * #### But has it's tradeoffs - No. of indep.var lessens, which can sig.fig impact the accuracy of the model.
+  
+  * #### This trade-off is formalized by AIC( Akaike information Criterion )
+  
+  * #### __step__ uses "one argument" : Name of the initial model.
+  
+      * #### returns : Simplar Model!
+
+-- --
+
+#### _Use the step function in R to derive a new model_
+
+``` {R}
+newModel2 <- step( tempModel1 )
+```
+
+#### __Inference:__
+
+#### Some interesting things about step():
+
+  * #### _step() does not address, "Collinearity" of the variables._
+  
+  * #### _Except, + highley correlated var, doesn't improve --> R-squared sif.fig
+  
+      * #### __Result__: Does not produce a very interpratable model, but rather 
+      a "balanced quality" & simplicity.
+      
+-- --
+
+> ## __5. Testing on Unseen Data__
+
+#### __So how well our model does on "unseen" real world data?__
+
+  * #### Using our previous model from step function,
+    
+  * #### To cal "temperature prediction for the testing data" using the predict function.
+  
+``` {r}
+predictiveModel <- predict( newModel2, newdata = GBtemp.Test)
+
+# This model doesent produce R-squared, so we have to manually calculate it.
+SSE <- sum( ( predictiveModel - GBtemp.Test $ Temp ) ^ 2 )
+SSE
+summary(GBtemp_Training)
+SST <- sum( ( mean( GBtemp_Training $ Temp) - GBtemp.Test $ Temp )^2)
+SST
+# Then R-suared is:
+1 - (SSE / SST )
+
+```
+
+### Assignment 2.1
+
+> ## Problem 1
+
+-- --
+
+``` {R}
+# 1 Loading the data set
+pisaTrain <- read.csv("C:/Users/pySag/Desktop/MITx15.071x/Datasets/pisa2009train.csv")
+
+pisaTest <- read.csv("C:/Users/pySag/Desktop/MITx15.071x/Datasets/pisa2009test.csv") 
+#1.1 How many students are there in our dataset?
+str(pisaTrain)
+# Ans: 3663
+
+#1.2 using tapply() on pisaTrain, what is the average reading test score of males?
+tapply( pisaTrain $ readingScore, pisaTrain $ male, mean)
+# Ans: male ~ 483.5325, consequently female ~ 512.9406
+
+#(1.3) Locating missing values
+# Which variables are missing data in at least one observation in the training set?
+
+summary(pisaTrain)
+# Ans: Based on the summary of dataset
+
+#(1.4) Removing missing values
+# To remove observations with any missing values from pisaTrain and pisaTest:
+      # use function na.omit()
+# data frame = na.omit(data frame)
+
+pisaTrain <- na.omit(pisaTrain)
+pisaTest <- na.omit(pisaTest)
+
+# How many observations are now in tht training set?
+str(pisaTrain)
+# How many observations are now in the testing set?
+str(pisaTest)
+```
+
+> ## Problem 2 
+
+-- --
+
+#### Factor variables are variables that take on a discrete set of values, like the "Region" variable in the WHO dataset from the second lecture of Unit 1. This is an unordered factor because there isn't any natural ordering between the levels. An ordered factor has a natural ordering between the levels (an example would be the classifications "large," "medium," and "small").
+
+``` {r}
+# Which of the following variables is an unordered factor with at least 3 levels?
+# Ans: raceeth
+# Which of the following variables is an ordered factor with at least 3 levels?
+# Ans: grade
+
+#(2.2) Unordered factors in regression models
+    # To include unordered factors in our linear regression model, we define 1 level as reference level.
+
+    # In this way a factor with 'n' levels is replaced by 'n-1' binary var's.
+
+# (2.3) 
+#Consider again adding our unordered factor race to the regression model with reference level "White".
+
+#For a student who is Asian, which binary variable would be set to 0? All remaining variable will be set to 1.
+
+```
+
+### Major Proejct 2016
+--- ---

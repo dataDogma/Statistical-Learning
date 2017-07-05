@@ -1,0 +1,138 @@
+---
+title: "MITx-15.071x-U1-Summary_Stats&Scatterplots"
+author: "Rahul Yadav"
+date: "April 11, 2016"
+output: 
+  html_document:
+    theme: journal
+    highlight: espresso
+---
+![](C:\Users\pySag\OneDrive\Pictures\Camera Roll\summartStats.jpg)
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir =  "C:/Users/pySag/Desktop/MITx15.071x")
+```
+
+
+## About
+
+The following markdown is curated from an online course MITx15.071x-Analytics Edge. This markdown will be specifically for "Summary Statistics" & "Scatterplots".
+
+-- -- 
+> **What is a summary statistic?**
+A 'Summary Statistics is a set of data values collected by a survey or experiment is known as a sample. In short they provide useful info about sample data.
+
+Most common of them being Measure of Central Tendency(Average), and measure of spread(standard deviation)
+
+
+## Objective
+
+In this markdown we are going to discuss the following topics:
+
+1. **Summary Statistics**
+    + Creating a summary statistics.
+2. **Data Visualization**
+    + Histograms
+    + Boxplots
+    + Scatterplots
+
+--- ---
+
+## Implementation
+-- --
+
+> **Importing our data set "WHO.csv"**
+
+```{r}
+WHO <- read.csv("C:/Users/pySag/Desktop/Major_Project_Summer_2016/Sectorwise_Data_Sets/Health & Family welfare/WHO.csv")
+```
+
+> **Summary Statistics on "WHO dataset"**
+
+```{r}
+summary(WHO)
+
+# Let's pull out summary stats for info on "populaton under 15 years of age"
+# If we simply type **Under15**, R will throw back an error "Object Under15 not found".
+# Hence to access the variable "Under15" we have to call it implicitly using our data frame "WHO".
+# Syntax: DataFrame $ Data frame variable name.
+
+summary(WHO$Under15)
+```
+
+-- -- 
+> **Understanding the summary statistics for "Population under 15"**
+
+1. Output tells us that there is a country with  minimum of 13% population under 15 & a country with maximum of 49.99% of population.
+    * **Question** is which are those countries?
+2. Output also tells us that some of the country have values below 1st quartile.
+3. Further there are some countries who have population under 15 below 3rd quarile.
+4. At last, an average of 28.73% of population lie below that value, is under 15.
+
+
+> **What is IQR(Inter Quartile Range) and what does 1st IQ and 3rd IQ mean?**
+
+In descriptive statistics, the interquartile range (IQR), also called the midspread or middle fifty, is a measure of statistical dispersion, being equal to the difference between the upper and lower quartiles, IQR = Q3 - Q1.
+
+Where 1st Qurtile = 
+& 3rd Quartile = 
+
+-- --
+
+> **Which countries have min and max of population under 15?**
+
+To answer this, R provides us with some useful function called **which.min() & which.max()**, here the following will give the information we want to absorb.
+
+```{r}
+which.min(WHO $ Under15)
+
+# R throws an output "86" which simply is the index of the variable in our data frame.
+# Just like most of the programming langugages, we have to use this index to extract the answer that we are intersested in finding!
+
+WHO $ Country[86]
+
+#Now lets find the country with maximum % of population under 15!
+
+which.max(WHO $ Under15)
+WHO $ Country[124]
+```
+
+--- ---
+
+> **Plotting a Scatterplot of GNI vs Firtility Rate**
+
+Before plotting a "Scatterplot", let's understand what a scatterplot is.
+Here's what statistics say about scatterplots:
+
+```{r, echo = TRUE}
+library(plotly)
+```
+``` {r}
+plot_ly(data = WHO, x = WHO$GNI, y = WHO$FertilityRate, mode = "markers", color = WHO$GNI)
+```
+
+**NOTE:** Each point in the scatter plot is a _country_. We can see that most countries here either have a low GNI or a high GNI but a low fertility rate. However, there are a few countries for which both the GNI and the fertility rate are high.
+
+__Let's Investigate!__
+
+-- --
+
+> ## Investigation
+
+We will use the another function offered by R to identify the countries
+with a GNI greater than 10,000, and a fertility rate greater than 2.5.
+
+```{r}
+Outliers <- subset(WHO, GNI > 10000 & FertilityRate > 2.5)
+# Using our outlier we can tell how many countries have such anamoly.
+
+nrow(Outliers)
+```
+-- -- 
+** What are the names of those coutries?**
+There's an easy way of doing this in R, we can do this by **accessing** the _index_ within our _Outlier_ with a [], inside this [C("variable names to extract")]
+
+``` {r}
+Outliers[c("Country", "GNI", "FertilityRate")]
+```

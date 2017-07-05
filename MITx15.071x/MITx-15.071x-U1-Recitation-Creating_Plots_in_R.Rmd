@@ -1,0 +1,119 @@
+---
+title: "MITx:15.071x_U1-Recitation-Creating_Plots-_in_R"
+author: "Rahul Yadav"
+date: "April 13, 2016"
+output: html_document
+
+    
+  
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = "C:/Users/pySag/Desktop/MITx15.071x")
+```
+
+
+> # <span style= "color:#1589FF">Outline</span>:
+
+--- ---
+
+#### Visualization is a crucial step for initial data exploration. It helps us discern relationships, patterns, and outliers.
+
+--- ---
+
+> ## <span style= "color:#1589FF">Creating Scatter Plots.</span>
+
+--- ---
+
+``` {r}
+USDA <- read.csv("C:/Users/pySag/Desktop/MITx15.071x/Datasets/USDA.csv")
+plot( USDA $ Protein, USDA $ TotalFat )
+
+# Improving our data visualization with "Labels"
+plot( USDA $ Protein, USDA $ TotalFat, xlab = "Protien", ylab = "Total Fat", main = "Protien vs Total Fat", col = "red")
+```
+
+--- ---
+
+> ## <span style= "color:#1589FF">Creating Histograms.</span>
+
+--- ---
+
+```{r}
+# [Note]: histogram function only takes "1 argument", becuase y axis should have the frequencies to exist on the first place.
+hist( USDA $ VitaminC, xlab = "Vitamin C (mg)", main = "Distribution of Vitamin C", col = "blue" )
+
+# Improving our histogram
+
+```
+
+--- ---
+
+### The following are the observations gathered form the histogram:
+
+* #### Evan though, max Vitamin C content = 2000 mgs, most(preciesly to be 6000) of the food have < 200 mgs of Vitamin C.
+
+* #### Our histogram function lumps them all into "1 cell or bin".
+    * #### We want to "zoom-in" to get finer understanding of the data.
+
+* #### To do this, we have to limit "x-axis" to go from 0 to 100 mgs.
+
+--- ---
+
+``` {r}
+hist( USDA $ VitaminC, xlab = "Vitamin C (mg)", main = "Distibution of Vitamin C Levels", col = "blue", xlim = c(0, 100) )
+```
+
+
+* #### It turns out we got a histogram of one giant bin, we don't want that.
+    * #### It dosen't break the cell in to smaller pieces.
+    
+    * #### We want 100 cells, and since the interval goes from 0 to 100,
+        * #### We would expect, R to break division into 1 mg each.
+        
+--- ---
+
+``` {r}
+hist( USDA $ VitaminC, xlab = "Vitamin C (mg)", main = "Distibution of Vitamin C Levels", col = "blue", xlim = c(0, 100), breaks = 100 )
+```
+
+* ####What happend? we were expecting 100 cells! 
+    * #### Well, if we look closely, out histogram exceeded the 100 limiter mark.
+    * #### Now, 1 big bin of 2000 cell was divided by 100, 20mg chunks. (2000 /100) = 20!
+
+* #### Hence to fix this, we will divide a cell of 2000 bin by 2000 individual bins of 1 mg each.
+
+--- ---
+
+```{r}
+hist( USDA $ VitaminC, xlab = "Vitamin C (mg)", main = "Distibution of Vitamin C Levels", col = "blue", xlim = c(0, 100), breaks = 2000 )
+```
+
+> ### Conclusion:
+
+#### Earlier from our histogram, we concluded that more than 6000 of food items have less then 200 mgs of Vitamin C, but now this new histogram give us the following new info:
+
+* #### It turns out that more than 5000 food items have less then 1 mgs of Vitamin C!
+
+--- ---
+
+> ## <span style= "color:#1589FF">Creating Box Plots.</span>
+
+--- ---
+
+```{r}
+# Note: Boxplot also utilizes only single argument( a vector ).
+boxplot( USDA $ Sugar, main = "Boxplot of sugar Levels")
+
+# If we aren't sure of the label, simply run the code and check to see if y-axis is labelled.
+boxplot( USDA $ Sugar, main = "Boxplot of sugar Levels", ylab = "Sugar (g)", col = "green")
+
+```
+
+
+> #### Inference from our boxplot.
+
+--- ---
+
+#### There exist some food that almost have 100 gm of sugar!
